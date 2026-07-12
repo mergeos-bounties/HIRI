@@ -333,6 +333,24 @@ def default_seed_devices() -> list[Device]:
             state={"state": "off"},
             adapter="mqtt",
         ),
+        Device(
+            id="sensor.noise_living",
+            name="Living room noise",
+            domain="sensor",
+            model="HIRI-DB",
+            area="living",
+            state={"state": 38.0},
+            attributes={"unit_of_measurement": "dB", "device_class": "sound_pressure"},
+            adapter="mqtt",
+        ),
+        Device(
+            id="media_player.speaker_kitchen",
+            name="Kitchen speaker",
+            domain="media_player",
+            model="HIRI-SPK",
+            area="kitchen",
+            state={"state": "off", "volume_level": 0.25},
+        ),
     ]
     return seeds
 

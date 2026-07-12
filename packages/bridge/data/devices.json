@@ -594,5 +594,37 @@
     },
     "attributes": {},
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.noise_living",
+    "name": "Living room noise",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-DB",
+    "area": "living",
+    "online": true,
+    "state": {
+      "state": 38.0
+    },
+    "attributes": {
+      "unit_of_measurement": "dB",
+      "device_class": "sound_pressure"
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "media_player.speaker_kitchen",
+    "name": "Kitchen speaker",
+    "domain": "media_player",
+    "manufacturer": "HIRI",
+    "model": "HIRI-SPK",
+    "area": "kitchen",
+    "online": true,
+    "state": {
+      "state": "off",
+      "volume_level": 0.25
+    },
+    "attributes": {},
+    "adapter": "local"
   }
 ]
