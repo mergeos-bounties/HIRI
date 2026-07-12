@@ -494,5 +494,44 @@
     },
     "attributes": {},
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.illuminance_desk",
+    "name": "Desk illuminance",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-LUX",
+    "area": "office",
+    "online": true,
+    "state": {
+      "state": 320.0
+    },
+    "attributes": {
+      "unit_of_measurement": "lx",
+      "device_class": "illuminance"
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "light.hallway_strip",
+    "name": "Hallway LED strip",
+    "domain": "light",
+    "manufacturer": "HIRI",
+    "model": "HIRI-RGBW",
+    "area": "entry",
+    "online": true,
+    "state": {
+      "state": "off",
+      "brightness": 0,
+      "color_temp": 300
+    },
+    "attributes": {
+      "rgb": true,
+      "effect_list": [
+        "none",
+        "pulse"
+      ]
+    },
+    "adapter": "local"
   }
 ]

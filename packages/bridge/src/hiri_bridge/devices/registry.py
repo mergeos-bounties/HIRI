@@ -276,6 +276,25 @@ def default_seed_devices() -> list[Device]:
             state={"state": "off"},
             adapter="mqtt",
         ),
+        Device(
+            id="sensor.illuminance_desk",
+            name="Desk illuminance",
+            domain="sensor",
+            model="HIRI-LUX",
+            area="office",
+            state={"state": 320.0},
+            attributes={"unit_of_measurement": "lx", "device_class": "illuminance"},
+            adapter="mqtt",
+        ),
+        Device(
+            id="light.hallway_strip",
+            name="Hallway LED strip",
+            domain="light",
+            model="HIRI-RGBW",
+            area="entry",
+            state={"state": "off", "brightness": 0, "color_temp": 300},
+            attributes={"rgb": True, "effect_list": ["none", "pulse"]},
+        ),
     ]
     return seeds
 
