@@ -200,6 +200,16 @@ def default_seed_devices() -> list[Device]:
             attributes={"unit_of_measurement": "µg/m³", "device_class": "pm25"},
             adapter="mqtt",
         ),
+        Device(
+            id="sensor.battery_gate",
+            name="Gate sensor battery",
+            domain="sensor",
+            model="HIRI-BATT",
+            area="entry",
+            state={"state": 87},
+            attributes={"unit_of_measurement": "%", "device_class": "battery"},
+            adapter="mqtt",
+        ),
     ]
     return seeds
 

@@ -359,5 +359,22 @@
       "device_class": "pm25"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.battery_gate",
+    "name": "Gate sensor battery",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-BATT",
+    "area": "entry",
+    "online": true,
+    "state": {
+      "state": 87
+    },
+    "attributes": {
+      "unit_of_measurement": "%",
+      "device_class": "battery"
+    },
+    "adapter": "mqtt"
   }
 ]
