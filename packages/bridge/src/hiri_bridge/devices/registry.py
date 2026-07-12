@@ -351,6 +351,25 @@ def default_seed_devices() -> list[Device]:
             area="kitchen",
             state={"state": "off", "volume_level": 0.25},
         ),
+        Device(
+            id="binary_sensor.leak_laundry",
+            name="Laundry leak",
+            domain="binary_sensor",
+            model="HIRI-LEAK",
+            area="utility",
+            state={"state": "off"},
+            attributes={"device_class": "moisture"},
+            adapter="mqtt",
+        ),
+        Device(
+            id="switch.water_shutoff",
+            name="Main water shutoff",
+            domain="switch",
+            model="HIRI-RELAY",
+            area="utility",
+            state={"state": "off"},
+            adapter="mqtt",
+        ),
     ]
     return seeds
 

@@ -626,5 +626,35 @@
     },
     "attributes": {},
     "adapter": "local"
+  },
+  {
+    "id": "binary_sensor.leak_laundry",
+    "name": "Laundry leak",
+    "domain": "binary_sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-LEAK",
+    "area": "utility",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "device_class": "moisture"
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "switch.water_shutoff",
+    "name": "Main water shutoff",
+    "domain": "switch",
+    "manufacturer": "HIRI",
+    "model": "HIRI-RELAY",
+    "area": "utility",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {},
+    "adapter": "mqtt"
   }
 ]
