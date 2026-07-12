@@ -69,6 +69,9 @@ def discovery_payload(device: Device) -> dict:
     if domain == "fan":
         base["percentage"] = True
         base["preset_modes"] = device.attributes.get("preset_modes", ["low", "medium", "high"])
+        base["percentage_command_topic"] = command_topic(device)
+        base["preset_mode_command_topic"] = command_topic(device) + "/preset"
+        base["preset_mode_state_topic"] = state_topic(device) + "/preset"
     if domain == "sensor":
         base["unit_of_measurement"] = device.attributes.get("unit_of_measurement", "")
         base["device_class"] = device.attributes.get("device_class")

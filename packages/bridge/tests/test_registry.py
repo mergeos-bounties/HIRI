@@ -39,6 +39,18 @@ def test_cover_tilt_and_fan_preset(tmp_path: Path) -> None:
     assert fan.state["state"] == "on"
 
 
+def test_fan_discovery_includes_preset_controls(tmp_path: Path) -> None:
+    reg = DeviceRegistry(path=tmp_path / "devices.json")
+    reg.seed()
+    fan = reg.get("fan.ceiling_lr")
+    assert fan is not None
+    payload = export_discovery([fan])[0]["payload"]
+    assert payload["preset_modes"] == ["low", "medium", "high", "breeze"]
+    assert payload["percentage_command_topic"].endswith("/cmd/fan/ceiling_lr")
+    assert payload["preset_mode_command_topic"].endswith("/cmd/fan/ceiling_lr/preset")
+    assert payload["preset_mode_state_topic"].endswith("/state/fan/ceiling_lr/preset")
+
+
 def test_discovery_export(tmp_path: Path) -> None:
     reg = DeviceRegistry(path=tmp_path / "devices.json")
     reg.seed()

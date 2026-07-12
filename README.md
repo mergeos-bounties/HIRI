@@ -47,11 +47,11 @@ Primary offline path: **bridge** (`hiri-bridge demo`).
 
 | Capability | Description |
 | --- | --- |
-| **Device registry** | Seed + import devices; domains (light, sensor, …) |
+| **Device registry** | Seed + import devices; domains (light, fan, sensor, …) |
 | **HA discovery** | Export MQTT discovery payloads offline |
 | **Adapters** | local, z2m, tuya, ha_rest, mqtt, matter (scaffold) |
 | **MQTT dry-run** | Publish discovery without a live broker |
-| **Command demo** | Apply sample commands (brightness, effects) in-memory |
+| **Command demo** | Apply sample commands (brightness, effects, fan presets) in-memory |
 
 ---
 
