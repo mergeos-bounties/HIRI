@@ -13,6 +13,19 @@
 
 Org: [mergeos-bounties](https://github.com/mergeos-bounties) · Funded via MergeOS MRG bounties.
 
+
+## Screenshots
+
+Real captures from running the product demo (HIRI).
+
+![Device registry](docs/screenshots/demo-devices.png)
+
+*Device registry*
+
+![HA discovery export](docs/screenshots/demo-discovery.png)
+
+*HA discovery export*
+
 ## Quick start (bridge — runnable offline)
 
 ```bash
