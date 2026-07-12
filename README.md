@@ -8,7 +8,7 @@
 
 **HIRI** is a smart-home **bridge + farmware** stack for **Home Assistant** and multi-ecosystem device adapters — local registry, MQTT discovery, REST API, ESP firmware, and client scaffolds.
 
-Product: [mergeos-bounties/HIRI](https://github.com/mergeos-bounties/HIRI)
+**Product:** [mergeos-bounties/HIRI](https://github.com/mergeos-bounties/HIRI)
 
 ---
 
@@ -109,18 +109,16 @@ Demo writes HA discovery JSON under the bridge `OUT_DIR` (e.g. `discovery.json`)
 
 ---
 
-
 ## Diagrams
 
-System architecture and workflow — shown full-width below.  
-Open the HTML files for **dark/light theme toggle** and export (PNG/SVG).
+System architecture and workflow — full width. Open the HTML files for **dark/light theme** and export (PNG/SVG).
 
 ### Architecture
 
 [Open interactive diagram](docs/diagrams/architecture.html)
 
 <p align="center">
-  <img src="docs/diagrams/architecture.svg" alt="Architecture diagram" width="100%" />
+  <img src="docs/diagrams/architecture.svg" alt="HIRI architecture" width="100%" />
 </p>
 
 ### Workflow
@@ -128,10 +126,12 @@ Open the HTML files for **dark/light theme toggle** and export (PNG/SVG).
 [Open interactive diagram](docs/diagrams/workflow.html)
 
 <p align="center">
-  <img src="docs/diagrams/workflow.svg" alt="Workflow diagram" width="100%" />
+  <img src="docs/diagrams/workflow.svg" alt="HIRI workflow" width="100%" />
 </p>
 
 *Generated with [archify](https://github.com/tt-a1i).*
+
+---
 
 ## Architecture
 
@@ -155,8 +155,8 @@ Open the HTML files for **dark/light theme toggle** and export (PNG/SVG).
 
 ## Safety
 
-- **Never commit** HA long-lived tokens, MQTT passwords, or Wi‑Fi credentials.  
-- Firmware defaults must not embed production secrets.  
+- **Never commit** HA long-lived tokens, MQTT passwords, or Wi-Fi credentials.
+- Firmware defaults must not embed production secrets.
 - Prefer dry-run MQTT in demos and CI.
 
 ---
@@ -182,7 +182,7 @@ Star + claim → PR **master** → MRG **25–200**. Evidence: discovery JSON sn
 ## Tiếng Việt
 
 **HIRI** cầu nối smart-home ↔ Home Assistant (registry, MQTT discovery, adapter).  
-Chạy offline: `cd packages/bridge && hiri-bridge demo`.
+Offline: `cd packages/bridge && hiri-bridge demo`.
 
 ---
 
