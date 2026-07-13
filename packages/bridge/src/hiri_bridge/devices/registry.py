@@ -225,7 +225,12 @@ def default_seed_devices() -> list[Device]:
             domain="siren",
             model="HIRI-SIREN",
             area="home",
-            state={"state": "off"},
+            state={"state": "off", "tone": None, "volume": 1.0},
+            attributes={
+                "available_tones": ["alarm", "chime", "fire", "burglar"],
+                "support_duration": True,
+                "support_volume_set": True,
+            },
         ),
         Device(
             id="humidifier.bedroom",
@@ -597,6 +602,16 @@ class DeviceRegistry:
                 if mode in dev.attributes.get("modes", []):
                     state["mode"] = mode
                     state["state"] = "on"
+            elif action == "set_tone" and domain == "siren":
+                tones = dev.attributes.get("available_tones", [])
+                tone = data.get("tone")
+                if tone in tones:
+                    state["tone"] = tone
+                    state["state"] = "on"
+                if "volume" in data:
+                    state["volume"] = float(data["volume"])
+                if "duration" in data:
+                    state["duration"] = int(data["duration"])
         elif domain == "lock":
             if action == "lock":
                 state["state"] = "locked"

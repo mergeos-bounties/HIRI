@@ -97,6 +97,14 @@ def discovery_payload(device: Device) -> dict:
             base["modes"] = modes
             base["mode_command_topic"] = command_topic(device) + "/mode"
             base["mode_state_topic"] = state_topic(device) + "/mode"
+    if domain == "siren":
+        tones = device.attributes.get("available_tones")
+        if tones:
+            # HA siren entity: advertise selectable tones + support flags so
+            # the frontend renders a tone picker alongside on/off.
+            base["available_tones"] = tones
+            base["support_duration"] = device.attributes.get("support_duration", True)
+            base["support_volume_set"] = device.attributes.get("support_volume_set", True)
     if domain == "sensor":
         base["unit_of_measurement"] = device.attributes.get("unit_of_measurement", "")
         dev_class = device.attributes.get("device_class")
