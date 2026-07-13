@@ -130,6 +130,11 @@ def discovery_payload(device: Device) -> dict:
         base["payload_unlock"] = "UNLOCK"
         base["state_locked"] = "LOCKED"
         base["state_unlocked"] = "UNLOCKED"
+        if device.attributes.get("code_required"):
+            # PIN/door-code stub: HA expects a code_format regex and a
+            # dedicated topic reporting whether a code was set locally.
+            base["code_format"] = device.attributes.get("code_format", "^[0-9]{4,8}$")
+            base["code_state_topic"] = state_topic(device) + "/code"
     if domain == "number":
         base["command_topic"] = command_topic(device)
         base["min"] = device.attributes.get("min", 0)
