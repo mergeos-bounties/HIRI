@@ -370,6 +370,25 @@ def default_seed_devices() -> list[Device]:
             state={"state": "off"},
             adapter="mqtt",
         ),
+        Device(
+            id="sensor.voc_office",
+            name="Office VOC",
+            domain="sensor",
+            model="HIRI-VOC",
+            area="office",
+            state={"state": 180.0},
+            attributes={"unit_of_measurement": "ppb", "device_class": "volatile_organic_compounds"},
+            adapter="mqtt",
+        ),
+        Device(
+            id="fan.office_exhaust",
+            name="Office exhaust fan",
+            domain="fan",
+            model="HIRI-FAN",
+            area="office",
+            state={"state": "off", "percentage": 0},
+            attributes={"percentage_step": 25},
+        ),
     ]
     return seeds
 

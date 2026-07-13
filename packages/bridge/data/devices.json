@@ -656,5 +656,39 @@
     },
     "attributes": {},
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.voc_office",
+    "name": "Office VOC",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-VOC",
+    "area": "office",
+    "online": true,
+    "state": {
+      "state": 180.0
+    },
+    "attributes": {
+      "unit_of_measurement": "ppb",
+      "device_class": "volatile_organic_compounds"
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "fan.office_exhaust",
+    "name": "Office exhaust fan",
+    "domain": "fan",
+    "manufacturer": "HIRI",
+    "model": "HIRI-FAN",
+    "area": "office",
+    "online": true,
+    "state": {
+      "state": "off",
+      "percentage": 0
+    },
+    "attributes": {
+      "percentage_step": 25
+    },
+    "adapter": "local"
   }
 ]
