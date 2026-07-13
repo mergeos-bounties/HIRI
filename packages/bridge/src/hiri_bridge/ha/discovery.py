@@ -148,6 +148,14 @@ def discovery_payload(device: Device) -> dict:
         base["min"] = device.attributes.get("min", 0)
         base["max"] = device.attributes.get("max", 100)
         base["step"] = device.attributes.get("step", 1)
+        # Surface the configured unit + entry mode so HA renders the number
+        # with its unit label and the right control (slider vs box).
+        unit = device.attributes.get("unit")
+        if unit:
+            base["unit_of_measurement"] = unit
+        base["mode"] = device.attributes.get("mode", "auto")
+        if "device_class" in device.attributes:
+            base["device_class"] = device.attributes["device_class"]
     if domain == "select":
         base["command_topic"] = command_topic(device)
         base["options"] = device.attributes.get("options", [])

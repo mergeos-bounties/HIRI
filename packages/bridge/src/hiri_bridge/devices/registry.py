@@ -657,7 +657,9 @@ class DeviceRegistry:
                     state["preset_mode"] = data["preset_mode"]
         elif domain == "number":
             if "value" in data:
-                state["value"] = data["value"]
+                lo = dev.attributes.get("min", 0)
+                hi = dev.attributes.get("max", 100)
+                state["value"] = max(lo, min(hi, data["value"]))
         elif domain == "select":
             if "option" in data and data["option"] in dev.attributes.get("options", []):
                 state["option"] = data["option"]
