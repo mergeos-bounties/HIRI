@@ -118,6 +118,19 @@ def default_seed_devices() -> list[Device]:
             state={"state": "locked"},
         ),
         Device(
+            id="lock.side_gate",
+            name="Side gate keypad",
+            domain="lock",
+            model="HIRI-KEYPAD",
+            area="garden",
+            state={"state": "locked", "code_set": False},
+            attributes={
+                "code_required": True,
+                "code_format": "^[0-9]{4,6}$",
+                "supported_features": ["lock", "unlock", "open"],
+            },
+        ),
+        Device(
             id="fan.ceiling_lr",
             name="Ceiling fan",
             domain="fan",
@@ -543,8 +556,12 @@ class DeviceRegistry:
                 state["state"] = "locked"
             elif action == "unlock":
                 state["state"] = "unlocked"
+            elif action == "open":
+                state["state"] = "open"
             if "code" in data:
                 state["last_code_set"] = bool(data["code"])
+                if "code_set" in state:
+                    state["code_set"] = bool(data["code"])
         elif domain == "cover":
             if action == "open":
                 state["state"] = "open"
