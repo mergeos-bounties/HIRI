@@ -255,6 +255,11 @@ def default_seed_devices() -> list[Device]:
             model="HIRI-ALARM",
             area="home",
             state={"state": "disarmed"},
+            attributes={
+                "code_arm_required": True,
+                "code_disarm_required": True,
+                "code": "1234",
+            },
         ),
         Device(
             id="binary_sensor.window_kitchen",
@@ -647,12 +652,25 @@ class DeviceRegistry:
             if action in {"start", "return_to_base", "dock"}:
                 state["state"] = "cleaning" if action == "start" else "docked"
         elif domain == "alarm_control_panel":
-            if action in {"arm_home", "arm_away", "disarm"}:
-                state["state"] = {
-                    "arm_home": "armed_home",
-                    "arm_away": "armed_away",
-                    "disarm": "disarmed",
-                }[action]
+            arm_map = {
+                "arm_home": "armed_home",
+                "arm_away": "armed_away",
+                "arm_night": "armed_night",
+                "arm_vacation": "armed_vacation",
+                "disarm": "disarmed",
+                "trigger": "triggered",
+            }
+            if action in arm_map:
+                required = dev.attributes.get(
+                    "code_disarm_required" if action == "disarm" else "code_arm_required",
+                    False,
+                )
+                expected = dev.attributes.get("code")
+                if required and action != "trigger" and data.get("code") != expected:
+                    state["last_error"] = "invalid_code"
+                else:
+                    state["state"] = arm_map[action]
+                    state.pop("last_error", None)
         elif domain == "media_player":
             if action in {"turn_on", "turn_off", "play", "pause"}:
                 state["state"] = "off" if action == "turn_off" else "playing" if action == "play" else "idle"

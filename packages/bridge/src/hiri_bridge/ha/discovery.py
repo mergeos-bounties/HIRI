@@ -168,7 +168,14 @@ def discovery_payload(device: Device) -> dict:
         )
     if domain == "alarm_control_panel":
         base["command_topic"] = command_topic(device)
-        base["supported_features"] = ["arm_home", "arm_away", "trigger"]
+        base["supported_features"] = device.attributes.get(
+            "supported_features",
+            ["arm_home", "arm_away", "arm_night", "arm_vacation", "trigger"],
+        )
+        # Advertise whether a code is required to arm/disarm so HA renders the
+        # keypad instead of bare arm buttons.
+        base["code_arm_required"] = device.attributes.get("code_arm_required", False)
+        base["code_disarm_required"] = device.attributes.get("code_disarm_required", False)
     if domain == "water_heater":
         base["command_topic"] = command_topic(device)
         base["temperature_unit"] = "C"
