@@ -246,7 +246,12 @@ def default_seed_devices() -> list[Device]:
             domain="water_heater",
             model="HIRI-WH",
             area="utility",
-            state={"state": "off", "temperature": 45},
+            state={"state": "off", "temperature": 45, "mode": "eco"},
+            attributes={
+                "modes": ["off", "eco", "performance", "away"],
+                "min_temp": 30,
+                "max_temp": 70,
+            },
         ),
         Device(
             id="alarm_control_panel.home",
@@ -564,7 +569,7 @@ class DeviceRegistry:
         data = data or {}
         state = dict(dev.state)
         domain = dev.domain
-        if domain in {"light", "switch", "fan", "siren", "humidifier", "water_heater"}:
+        if domain in {"light", "switch", "fan", "siren", "humidifier"}:
             if action in {"turn_on", "on"}:
                 state["state"] = "on"
                 if "brightness" in data:
@@ -678,6 +683,14 @@ class DeviceRegistry:
                 state["volume_level"] = data["volume_level"]
             if "source" in data and data["source"] in dev.attributes.get("source_list", []):
                 state["source"] = data["source"]
+        elif domain == "water_heater":
+            if "mode" in data and data["mode"] in dev.attributes.get("modes", []):
+                state["mode"] = data["mode"]
+                state["state"] = "off" if data["mode"] == "off" else "on"
+            if "temperature" in data:
+                lo = dev.attributes.get("min_temp", 30)
+                hi = dev.attributes.get("max_temp", 70)
+                state["temperature"] = max(lo, min(hi, data["temperature"]))
         else:
             state["last_action"] = action
             state.update(data)

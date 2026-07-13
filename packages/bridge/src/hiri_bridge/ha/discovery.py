@@ -179,6 +179,15 @@ def discovery_payload(device: Device) -> dict:
     if domain == "water_heater":
         base["command_topic"] = command_topic(device)
         base["temperature_unit"] = "C"
+        base["min_temp"] = device.attributes.get("min_temp", 30)
+        base["max_temp"] = device.attributes.get("max_temp", 70)
+        # Expose operation modes (incl. eco/away) + a dedicated mode topic so
+        # HA can toggle away mode instead of only setting a target temperature.
+        modes = device.attributes.get("modes")
+        if modes:
+            base["modes"] = modes
+            base["mode_command_topic"] = command_topic(device) + "/mode"
+            base["mode_state_topic"] = state_topic(device) + "/mode"
     return base
 
 
