@@ -201,6 +201,9 @@ def default_seed_devices() -> list[Device]:
             model="HIRI-BTN",
             area="entry",
             state={},
+            attributes={
+                "event_types": ["single", "double", "long"],
+            },
         ),
         Device(
             id="number.feed_dose",
@@ -691,7 +694,11 @@ class DeviceRegistry:
             if "option" in data and data["option"] in dev.attributes.get("options", []):
                 state["option"] = data["option"]
         elif domain == "button":
-            state["last_pressed"] = action or "press"
+            press_type = data.get("press_type", "single")
+            if press_type in dev.attributes.get("event_types", ["single"]):
+                state["last_pressed"] = press_type
+            else:
+                state["last_pressed"] = "single"
         elif domain == "vacuum":
             if action in {"start", "return_to_base", "dock"}:
                 state["state"] = "cleaning" if action == "start" else "docked"

@@ -52,6 +52,7 @@ Primary offline path: **bridge** (`hiri-bridge demo`).
 | **Adapters** | local, z2m, tuya, ha_rest, mqtt, matter (scaffold) |
 | **MQTT dry-run** | Publish discovery without a live broker |
 | **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list, water_heater away mode, alarm arm modes) in-memory |
+| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list, button multi-press, alarm arm modes) in-memory |
 
 ---
 
