@@ -61,11 +61,19 @@ def discovery_payload(device: Device) -> dict:
         base["temp_step"] = 0.5
         base["current_temperature_topic"] = state_topic(device)
     if domain == "cover":
-        base["position_topic"] = state_topic(device)
+        base["command_topic"] = command_topic(device)
+        base["position_topic"] = state_topic(device) + "/position"
         base["set_position_topic"] = command_topic(device)
         base["payload_open"] = "OPEN"
         base["payload_close"] = "CLOSE"
         base["payload_stop"] = "STOP"
+        base["position_open"] = 100
+        base["position_closed"] = 0
+        if device.attributes.get("tilt"):
+            base["tilt_status_topic"] = state_topic(device) + "/tilt"
+            base["tilt_command_topic"] = command_topic(device) + "/tilt"
+            base["tilt_min"] = 0
+            base["tilt_max"] = 100
     if domain == "fan":
         base["percentage"] = True
         base["preset_modes"] = device.attributes.get("preset_modes", ["low", "medium", "high"])
@@ -86,12 +94,6 @@ def discovery_payload(device: Device) -> dict:
         base["payload_unlock"] = "UNLOCK"
         base["state_locked"] = "LOCKED"
         base["state_unlocked"] = "UNLOCKED"
-    if domain == "cover":
-        base["command_topic"] = command_topic(device)
-        base["payload_open"] = "OPEN"
-        base["payload_close"] = "CLOSE"
-        base["payload_stop"] = "STOP"
-        base["position_topic"] = state_topic(device) + "/position"
     if domain == "climate":
         base["mode_command_topic"] = command_topic(device) + "/mode"
         base["temperature_command_topic"] = command_topic(device) + "/temp"

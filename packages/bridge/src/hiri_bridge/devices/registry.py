@@ -74,6 +74,15 @@ def default_seed_devices() -> list[Device]:
             },
         ),
         Device(
+            id="cover.living_blinds",
+            name="Living room blinds",
+            domain="cover",
+            model="HIRI-BLIND",
+            area="living",
+            state={"state": "open", "position": 100, "tilt": 50},
+            attributes={"tilt": True, "device_class": "blind"},
+        ),
+        Device(
             id="cover.garage",
             name="Garage door",
             domain="cover",
