@@ -179,13 +179,6 @@ Star + claim → PR **master** → MRG **25–200**. Evidence: discovery JSON sn
 
 ---
 
-## Tiếng Việt
-
-**HIRI** cầu nối smart-home ↔ Home Assistant (registry, MQTT discovery, adapter).  
-Offline: `cd packages/bridge && hiri-bridge demo`.
-
----
-
 ## License
 
 MIT · MergeOS / ThanhTrucSolutions
