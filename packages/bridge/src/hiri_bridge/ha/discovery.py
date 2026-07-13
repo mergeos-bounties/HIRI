@@ -108,6 +108,9 @@ def discovery_payload(device: Device) -> dict:
     if domain == "select":
         base["command_topic"] = command_topic(device)
         base["options"] = device.attributes.get("options", [])
+        # HA select needs a value template pointing at the reported option so
+        # the frontend reflects the active choice instead of the raw payload.
+        base["value_template"] = "{{ value_json.option }}"
     if domain == "button":
         base["command_topic"] = command_topic(device)
         base["payload_press"] = "PRESS"

@@ -159,6 +159,18 @@ def default_seed_devices() -> list[Device]:
             attributes={"options": ["auto", "manual", "sleep"]},
         ),
         Device(
+            id="select.scene_living",
+            name="Living room scene",
+            domain="select",
+            model="HIRI-SCENE",
+            area="living",
+            state={"option": "day"},
+            attributes={
+                "options": ["day", "night", "movie", "party", "away"],
+            },
+            adapter="mqtt",
+        ),
+        Device(
             id="siren.alarm",
             name="Siren",
             domain="siren",
@@ -545,7 +557,7 @@ class DeviceRegistry:
             if "value" in data:
                 state["value"] = data["value"]
         elif domain == "select":
-            if "option" in data:
+            if "option" in data and data["option"] in dev.attributes.get("options", []):
                 state["option"] = data["option"]
         elif domain == "button":
             state["last_pressed"] = action or "press"
