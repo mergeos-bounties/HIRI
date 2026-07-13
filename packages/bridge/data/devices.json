@@ -38,6 +38,30 @@
     "adapter": "mqtt"
   },
   {
+    "id": "switch.wall_panel",
+    "name": "Wall panel relay",
+    "domain": "switch",
+    "manufacturer": "HIRI",
+    "model": "HIRI-RELAY4",
+    "area": "living",
+    "online": true,
+    "state": {
+      "state": "off",
+      "gang1": "off",
+      "gang2": "off",
+      "gang3": "off"
+    },
+    "attributes": {
+      "device_class": "outlet",
+      "gangs": [
+        "gang1",
+        "gang2",
+        "gang3"
+      ]
+    },
+    "adapter": "mqtt"
+  },
+  {
     "id": "binary_sensor.door_front",
     "name": "Front door contact",
     "domain": "binary_sensor",
@@ -50,6 +74,25 @@
     },
     "attributes": {
       "device_class": "door"
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "binary_sensor.window_bedroom",
+    "name": "Bedroom window",
+    "domain": "binary_sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-CONTACT-BAT",
+    "area": "bedroom",
+    "online": true,
+    "state": {
+      "state": "off",
+      "battery": 87
+    },
+    "attributes": {
+      "device_class": "window",
+      "battery": true,
+      "expire_after": 3600
     },
     "adapter": "mqtt"
   },
@@ -120,6 +163,57 @@
     "adapter": "local"
   },
   {
+    "id": "cover.living_blinds",
+    "name": "Living room blinds",
+    "domain": "cover",
+    "manufacturer": "HIRI",
+    "model": "HIRI-BLIND",
+    "area": "living",
+    "online": true,
+    "state": {
+      "state": "open",
+      "position": 100,
+      "tilt": 50
+    },
+    "attributes": {
+      "tilt": true,
+      "device_class": "blind"
+    },
+    "adapter": "local"
+  },
+  {
+    "id": "climate.living_thermostat",
+    "name": "Living room thermostat",
+    "domain": "climate",
+    "manufacturer": "HIRI",
+    "model": "HIRI-THERMO",
+    "area": "living",
+    "online": true,
+    "state": {
+      "hvac_mode": "heat",
+      "temperature": 21,
+      "current_temperature": 19,
+      "preset_mode": "comfort"
+    },
+    "attributes": {
+      "hvac_modes": [
+        "off",
+        "heat",
+        "cool",
+        "auto"
+      ],
+      "min_temp": 7,
+      "max_temp": 35,
+      "preset_modes": [
+        "comfort",
+        "eco",
+        "away",
+        "boost"
+      ]
+    },
+    "adapter": "local"
+  },
+  {
     "id": "cover.garage",
     "name": "Garage door",
     "domain": "cover",
@@ -147,6 +241,29 @@
       "state": "locked"
     },
     "attributes": {},
+    "adapter": "local"
+  },
+  {
+    "id": "lock.side_gate",
+    "name": "Side gate keypad",
+    "domain": "lock",
+    "manufacturer": "HIRI",
+    "model": "HIRI-KEYPAD",
+    "area": "garden",
+    "online": true,
+    "state": {
+      "state": "locked",
+      "code_set": false
+    },
+    "attributes": {
+      "code_required": true,
+      "code_format": "^[0-9]{4,6}$",
+      "supported_features": [
+        "lock",
+        "unlock",
+        "open"
+      ]
+    },
     "adapter": "local"
   },
   {
@@ -182,9 +299,18 @@
     "online": true,
     "state": {
       "state": "off",
-      "volume_level": 0.2
+      "volume_level": 0.2,
+      "source": "HDMI 1"
     },
-    "attributes": {},
+    "attributes": {
+      "source_list": [
+        "HDMI 1",
+        "HDMI 2",
+        "Netflix",
+        "YouTube",
+        "TV"
+      ]
+    },
     "adapter": "local"
   },
   {
@@ -197,9 +323,23 @@
     "online": true,
     "state": {
       "state": "docked",
-      "battery": 100
+      "battery": 100,
+      "fan_speed": "balanced"
     },
-    "attributes": {},
+    "attributes": {
+      "fan_speed_list": [
+        "quiet",
+        "balanced",
+        "turbo",
+        "max"
+      ],
+      "rooms": [
+        "living",
+        "kitchen",
+        "bedroom",
+        "hallway"
+      ]
+    },
     "adapter": "local"
   },
   {
@@ -214,7 +354,8 @@
       "state": "idle"
     },
     "attributes": {
-      "stream_url": "rtsp://192.0.2.10/stream"
+      "stream_url": "rtsp://192.0.2.10/stream",
+      "snapshot_url": "http://192.0.2.10/snapshot.jpg"
     },
     "adapter": "local"
   },
@@ -227,7 +368,13 @@
     "area": "entry",
     "online": true,
     "state": {},
-    "attributes": {},
+    "attributes": {
+      "event_types": [
+        "single",
+        "double",
+        "long"
+      ]
+    },
     "adapter": "local"
   },
   {
@@ -270,6 +417,28 @@
     "adapter": "local"
   },
   {
+    "id": "select.scene_living",
+    "name": "Living room scene",
+    "domain": "select",
+    "manufacturer": "HIRI",
+    "model": "HIRI-SCENE",
+    "area": "living",
+    "online": true,
+    "state": {
+      "option": "day"
+    },
+    "attributes": {
+      "options": [
+        "day",
+        "night",
+        "movie",
+        "party",
+        "away"
+      ]
+    },
+    "adapter": "mqtt"
+  },
+  {
     "id": "siren.alarm",
     "name": "Siren",
     "domain": "siren",
@@ -278,9 +447,20 @@
     "area": "home",
     "online": true,
     "state": {
-      "state": "off"
+      "state": "off",
+      "tone": null,
+      "volume": 1.0
     },
-    "attributes": {},
+    "attributes": {
+      "available_tones": [
+        "alarm",
+        "chime",
+        "fire",
+        "burglar"
+      ],
+      "support_duration": true,
+      "support_volume_set": true
+    },
     "adapter": "local"
   },
   {
@@ -293,9 +473,21 @@
     "online": true,
     "state": {
       "state": "off",
-      "humidity": 55
+      "humidity": 55,
+      "target_humidity": 50,
+      "mode": "normal"
     },
-    "attributes": {},
+    "attributes": {
+      "modes": [
+        "normal",
+        "eco",
+        "away",
+        "sleep",
+        "boost"
+      ],
+      "min_humidity": 30,
+      "max_humidity": 80
+    },
     "adapter": "local"
   },
   {
@@ -308,9 +500,19 @@
     "online": true,
     "state": {
       "state": "off",
-      "temperature": 45
+      "temperature": 45,
+      "mode": "eco"
     },
-    "attributes": {},
+    "attributes": {
+      "modes": [
+        "off",
+        "eco",
+        "performance",
+        "away"
+      ],
+      "min_temp": 30,
+      "max_temp": 70
+    },
     "adapter": "local"
   },
   {
@@ -324,7 +526,11 @@
     "state": {
       "state": "disarmed"
     },
-    "attributes": {},
+    "attributes": {
+      "code_arm_required": true,
+      "code_disarm_required": true,
+      "code": "1234"
+    },
     "adapter": "local"
   },
   {
@@ -460,7 +666,8 @@
       "state": "off"
     },
     "attributes": {
-      "device_class": "motion"
+      "device_class": "motion",
+      "off_delay": 30
     },
     "adapter": "mqtt"
   },
@@ -548,6 +755,23 @@
     "attributes": {
       "unit_of_measurement": "W",
       "device_class": "power"
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.panel_energy",
+    "name": "Panel energy",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-PWR",
+    "area": "utility",
+    "online": true,
+    "state": {
+      "state": 1834.7
+    },
+    "attributes": {
+      "unit_of_measurement": "kWh",
+      "device_class": "energy"
     },
     "adapter": "mqtt"
   },

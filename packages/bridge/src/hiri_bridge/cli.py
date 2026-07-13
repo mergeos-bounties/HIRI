@@ -134,6 +134,32 @@ def devices_stats() -> None:
     )
 
 
+@devices_app.command("search")
+def devices_search(
+    query: str = typer.Argument(..., help="Substring over id/name/area/domain"),
+    limit: int = typer.Option(30, "--limit", "-n", min=1, max=200),
+) -> None:
+    """Search devices by id, name, area, or domain."""
+    q = query.strip().lower()
+    reg = _registry()
+    table = Table(title=f"Device search: {query}")
+    table.add_column("ID")
+    table.add_column("Domain")
+    table.add_column("Area")
+    table.add_column("Name")
+    n = 0
+    for d in reg.list():
+        blob = f"{d.id} {d.domain} {d.name} {getattr(d, 'area', '')}".lower()
+        if q not in blob:
+            continue
+        table.add_row(d.id, d.domain, str(getattr(d, "area", "")), d.name)
+        n += 1
+        if n >= limit:
+            break
+    console.print(table)
+    console.print(f"[dim]hits={n}[/dim]")
+
+
 @devices_app.command("cmd")
 def devices_cmd(
     device_id: str = typer.Option(..., "--id"),
