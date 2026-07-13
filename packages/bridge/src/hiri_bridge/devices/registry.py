@@ -132,7 +132,10 @@ def default_seed_devices() -> list[Device]:
             domain="media_player",
             model="HIRI-TV",
             area="living",
-            state={"state": "off", "volume_level": 0.2},
+            state={"state": "off", "volume_level": 0.2, "source": "HDMI 1"},
+            attributes={
+                "source_list": ["HDMI 1", "HDMI 2", "Netflix", "YouTube", "TV"],
+            },
         ),
         Device(
             id="vacuum.bot_1",
@@ -595,6 +598,8 @@ class DeviceRegistry:
                 state["state"] = "off" if action == "turn_off" else "playing" if action == "play" else "idle"
             if "volume_level" in data:
                 state["volume_level"] = data["volume_level"]
+            if "source" in data and data["source"] in dev.attributes.get("source_list", []):
+                state["source"] = data["source"]
         else:
             state["last_action"] = action
             state.update(data)

@@ -51,7 +51,7 @@ Primary offline path: **bridge** (`hiri-bridge demo`).
 | **HA discovery** | Export MQTT discovery payloads offline |
 | **Adapters** | local, z2m, tuya, ha_rest, mqtt, matter (scaffold) |
 | **MQTT dry-run** | Publish discovery without a live broker |
-| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes) in-memory |
+| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list) in-memory |
 
 ---
 

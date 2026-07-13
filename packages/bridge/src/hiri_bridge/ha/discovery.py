@@ -122,6 +122,16 @@ def discovery_payload(device: Device) -> dict:
         base["supported_features"] = ["start", "return_home", "battery"]
     if domain == "media_player":
         base["command_topic"] = command_topic(device)
+        # Expose selectable inputs + volume/source support so HA renders the
+        # source dropdown and the right transport controls.
+        source_list = device.attributes.get("source_list")
+        if source_list:
+            base["source_list"] = source_list
+            base["source_command_topic"] = command_topic(device) + "/source"
+        base["supported_features"] = device.attributes.get(
+            "supported_features",
+            ["turn_on", "turn_off", "play", "pause", "volume_set"],
+        )
     if domain == "alarm_control_panel":
         base["command_topic"] = command_topic(device)
         base["supported_features"] = ["arm_home", "arm_away", "trigger"]
