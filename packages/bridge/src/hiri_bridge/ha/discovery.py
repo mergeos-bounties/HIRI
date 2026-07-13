@@ -80,6 +80,16 @@ def discovery_payload(device: Device) -> dict:
         base["percentage_command_topic"] = command_topic(device)
         base["preset_mode_command_topic"] = command_topic(device) + "/preset"
         base["preset_mode_state_topic"] = state_topic(device) + "/preset"
+    if domain == "humidifier":
+        base["target_humidity_command_topic"] = command_topic(device) + "/humidity"
+        base["current_humidity_topic"] = state_topic(device) + "/current_humidity"
+        base["min_humidity"] = device.attributes.get("min_humidity", 30)
+        base["max_humidity"] = device.attributes.get("max_humidity", 80)
+        modes = device.attributes.get("modes")
+        if modes:
+            base["modes"] = modes
+            base["mode_command_topic"] = command_topic(device) + "/mode"
+            base["mode_state_topic"] = state_topic(device) + "/mode"
     if domain == "sensor":
         base["unit_of_measurement"] = device.attributes.get("unit_of_measurement", "")
         base["device_class"] = device.attributes.get("device_class")

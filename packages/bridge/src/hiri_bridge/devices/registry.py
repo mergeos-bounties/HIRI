@@ -184,7 +184,12 @@ def default_seed_devices() -> list[Device]:
             domain="humidifier",
             model="HIRI-HUM",
             area="bedroom",
-            state={"state": "off", "humidity": 55},
+            state={"state": "off", "humidity": 55, "target_humidity": 50, "mode": "normal"},
+            attributes={
+                "modes": ["normal", "eco", "away", "sleep", "boost"],
+                "min_humidity": 30,
+                "max_humidity": 80,
+            },
         ),
         Device(
             id="water_heater.boiler",
@@ -519,6 +524,17 @@ class DeviceRegistry:
             elif action == "set_preset_mode" and domain == "fan":
                 state["preset_mode"] = data.get("preset_mode", "low")
                 state["state"] = "on"
+            elif action == "set_humidity" and domain == "humidifier":
+                lo = dev.attributes.get("min_humidity", 30)
+                hi = dev.attributes.get("max_humidity", 80)
+                target = int(data.get("humidity", 50))
+                state["target_humidity"] = max(lo, min(hi, target))
+                state["state"] = "on"
+            elif action == "set_mode" and domain == "humidifier":
+                mode = data.get("mode")
+                if mode in dev.attributes.get("modes", []):
+                    state["mode"] = mode
+                    state["state"] = "on"
         elif domain == "lock":
             if action == "lock":
                 state["state"] = "locked"
