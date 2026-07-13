@@ -186,6 +186,14 @@ def discovery_payload(device: Device) -> dict:
             base["event_topic"] = state_topic(device) + "/event"
     if domain == "camera":
         base["topic"] = state_topic(device)
+        # Surface the RTSP/stream source and a still-image snapshot URL so HA
+        # can render a live feed + thumbnails instead of a bare topic.
+        stream_url = device.attributes.get("stream_url")
+        if stream_url:
+            base["stream_source"] = stream_url
+        snapshot_url = device.attributes.get("snapshot_url")
+        if snapshot_url:
+            base["still_image_url"] = snapshot_url
     if domain == "vacuum":
         base["command_topic"] = command_topic(device)
         base["supported_features"] = ["start", "return_home", "battery"]
