@@ -178,6 +178,12 @@ def discovery_payload(device: Device) -> dict:
     if domain == "button":
         base["command_topic"] = command_topic(device)
         base["payload_press"] = "PRESS"
+        # Expose multi-press event types so HA can bind device automations to
+        # single / double / long presses instead of a single fire-and-forget.
+        event_types = device.attributes.get("event_types")
+        if event_types:
+            base["event_types"] = event_types
+            base["event_topic"] = state_topic(device) + "/event"
     if domain == "camera":
         base["topic"] = state_topic(device)
     if domain == "vacuum":
