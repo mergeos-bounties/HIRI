@@ -32,6 +32,19 @@ def default_seed_devices() -> list[Device]:
             adapter="mqtt",
         ),
         Device(
+            id="switch.wall_panel",
+            name="Wall panel relay",
+            domain="switch",
+            model="HIRI-RELAY4",
+            area="living",
+            state={"state": "off", "gang1": "off", "gang2": "off", "gang3": "off"},
+            attributes={
+                "device_class": "outlet",
+                "gangs": ["gang1", "gang2", "gang3"],
+            },
+            adapter="mqtt",
+        ),
+        Device(
             id="binary_sensor.door_front",
             name="Front door",
             domain="binary_sensor",
@@ -617,6 +630,15 @@ class DeviceRegistry:
                     state["volume"] = float(data["volume"])
                 if "duration" in data:
                     state["duration"] = int(data["duration"])
+            elif action == "set_gang" and domain == "switch":
+                gang = data.get("gang")
+                gang_state = "on" if data.get("state") in {"on", True, "ON"} else "off"
+                if gang and gang in dev.attributes.get("gangs", []):
+                    state[gang] = gang_state
+                    gangs = dev.attributes.get("gangs", [])
+                    state["state"] = "on" if any(
+                        state.get(g) == "on" for g in gangs
+                    ) else "off"
         elif domain == "lock":
             if action == "lock":
                 state["state"] = "locked"

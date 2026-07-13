@@ -43,6 +43,19 @@ def discovery_payload(device: Device) -> dict:
         base["command_topic"] = command_topic(device)
         base["payload_on"] = "ON"
         base["payload_off"] = "OFF"
+    if domain == "switch":
+        base["device_class"] = device.attributes.get("device_class", "switch")
+        gangs = device.attributes.get("gangs")
+        if gangs:
+            # Multi-gang relay: expose per-channel command/state topics so HA
+            # can render one switch entity per physical gang.
+            base["gang_count"] = len(gangs)
+            base["gang_command_topics"] = {
+                g: command_topic(device) + f"/{g}" for g in gangs
+            }
+            base["gang_state_topics"] = {
+                g: state_topic(device) + f"/{g}" for g in gangs
+            }
     if domain == "light":
         base["brightness"] = True
         base["brightness_scale"] = 255
