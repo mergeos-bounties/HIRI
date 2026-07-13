@@ -1,4 +1,4 @@
-# HIRI-firmware (Farmware)
+# HIRI-firmware (Firmware)
 
 PlatformIO project for **ESP32** and **ESP8266**.
 

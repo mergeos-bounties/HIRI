@@ -4,7 +4,7 @@
 
 - [x] Bridge device registry + HA MQTT discovery export  
 - [x] CLI demo + FastAPI  
-- [x] ESP farmware skeleton (PlatformIO)  
+- [x] ESP firmware skeleton (PlatformIO)  
 - [x] Web + Admin static UIs  
 - [x] Android / iOS scaffolds  
 
@@ -12,7 +12,7 @@
 
 - [ ] Live MQTT client (paho) optional  
 - [ ] HA WebSocket event stream  
-- [ ] OTA for farmware  
+- [ ] OTA for firmware  
 - [ ] Matter bridge adapter stub  
 
 ## v0.3

@@ -1,4 +1,4 @@
-"""Farmware-style sensor simulators (DHT22 / soil) with deterministic offline tick."""
+"""Firmware-style sensor simulators (DHT22 / soil) with deterministic offline tick."""
 
 from __future__ import annotations
 

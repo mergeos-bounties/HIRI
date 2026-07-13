@@ -1,12 +1,12 @@
 # HIRI
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Bridge](https://img.shields.io/badge/hiri--bridge-0.2.0-0E8A16.svg)](packages/bridge/pyproject.toml)
+[![Bridge](https://img.shields.io/badge/hiri--bridge-0.2.15-0E8A16.svg)](packages/bridge/pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-MQTT%20discovery-41BDF5.svg)](https://www.home-assistant.io/)
 [![MergeOS](https://img.shields.io/badge/MergeOS-bounties-5319E7.svg)](https://github.com/mergeos-bounties)
 
-**HIRI** is a smart-home **bridge + farmware** stack for **Home Assistant** and multi-ecosystem device adapters — local registry, MQTT discovery, REST API, ESP firmware, and client scaffolds.
+**HIRI** is a smart-home **bridge + firmware** stack for **Home Assistant** and multi-ecosystem device adapters — local registry, MQTT discovery, REST API, ESP firmware, and client scaffolds.
 
 **Product:** [mergeos-bounties/HIRI](https://github.com/mergeos-bounties/HIRI)
 
@@ -34,7 +34,7 @@
 | Package | Path | Role |
 | --- | --- | --- |
 | **HIRI-bridge** | `packages/bridge` | Device registry, adapters, HA MQTT discovery, FastAPI |
-| **HIRI-firmware** | `packages/firmware` | ESP32 / ESP8266 farmware (PlatformIO) → MQTT → HA |
+| **HIRI-firmware** | `packages/firmware` | ESP32 / ESP8266 firmware (PlatformIO) → MQTT → HA |
 | **HIRI-web** | `packages/web` | User dashboard |
 | **HIRI-admin** | `packages/admin` | Admin console (devices, adapters, logs) |
 | **HIRI-android** / **ios** | `packages/…` | Mobile client scaffolds |
@@ -137,7 +137,7 @@ System architecture and workflow — full width. Open the HTML files for **dark/
 
 ```text
                     ┌─────────────┐
-   ESP farmware ───►│  MQTT / LAN │◄─── Zigbee2MQTT / Tuya stubs
+   ESP firmware ───►│  MQTT / LAN │◄─── Zigbee2MQTT / Tuya stubs
                     └──────┬──────┘
                            ▼
                  ┌───────────────────┐

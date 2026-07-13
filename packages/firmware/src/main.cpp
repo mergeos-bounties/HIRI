@@ -1,5 +1,5 @@
 /**
- * HIRI Farmware — lightweight MQTT client for ESP32/ESP8266.
+ * HIRI Firmware — lightweight MQTT client for ESP32/ESP8266.
  * Publishes Home Assistant MQTT discovery + state for:
  *  - switch (relay)
  *  - sensor (fake soil moisture / temperature)
@@ -54,7 +54,7 @@ void publishDiscovery() {
     JsonObject dev = doc["device"].to<JsonObject>();
     dev["identifiers"][0] = HIRI_DEVICE_ID;
     dev["manufacturer"] = "HIRI";
-    dev["model"] = "Farmware";
+    dev["model"] = "HIRI Firmware";
     dev["name"] = HIRI_DEVICE_ID;
     char buf[512];
     size_t n = serializeJson(doc, buf, sizeof(buf));

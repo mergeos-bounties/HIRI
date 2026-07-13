@@ -23,7 +23,7 @@ Admin ledger pays **25/50/100/200** only.
 
 - Bridge adapters (HA, MQTT, Matter, Zigbee2MQTT, Tuya, SmartThings…)  
 - Device type coverage (light, climate, cover, lock, camera…)  
-- ESP32/ESP8266 farmware  
+- ESP32/ESP8266 firmware  
 - Web / Admin / Android / iOS clients  
 - Security, OTA, provisioning  
 
