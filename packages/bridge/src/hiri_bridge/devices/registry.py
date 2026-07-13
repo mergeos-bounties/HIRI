@@ -192,7 +192,10 @@ def default_seed_devices() -> list[Device]:
             model="HIRI-CAM",
             area="yard",
             state={"state": "idle"},
-            attributes={"stream_url": "rtsp://192.0.2.10/stream"},
+            attributes={
+                "stream_url": "rtsp://192.0.2.10/stream",
+                "snapshot_url": "http://192.0.2.10/snapshot.jpg",
+            },
         ),
         Device(
             id="button.panic",
