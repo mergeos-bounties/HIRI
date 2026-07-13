@@ -2,11 +2,12 @@
 
 ## Claim
 
-1. Star https://github.com/mergeos-bounties/HIRI  
-2. Star https://github.com/mergeos-bounties/mergeos  
-3. Comment on issue: `I claim this bounty`  
-4. Comment on MergeOS [Claim Token #1](https://github.com/mergeos-bounties/mergeos/issues/1)  
-5. PR to **HIRI** (`Fixes #N`)
+1. **Follow** the org https://github.com/mergeos-bounties  
+2. **Star** https://github.com/mergeos-bounties/mergeos  
+3. **Star** https://github.com/mergeos-bounties/mergeos-contracts
+4. Comment on issue: `I claim this bounty`  
+5. Comment on MergeOS [Claim Token #1](https://github.com/mergeos-bounties/mergeos/issues/1)  
+6. PR to **HIRI** (`Fixes #N`)
 
 ## Scale
 
