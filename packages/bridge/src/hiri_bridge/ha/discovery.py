@@ -196,7 +196,18 @@ def discovery_payload(device: Device) -> dict:
             base["still_image_url"] = snapshot_url
     if domain == "vacuum":
         base["command_topic"] = command_topic(device)
-        base["supported_features"] = ["start", "return_home", "battery"]
+        base["supported_features"] = device.attributes.get(
+            "supported_features",
+            ["start", "return_home", "battery", "fan_speed"],
+        )
+        # Expose fan speed presets + mapped rooms so HA can offer targeted
+        # segment cleaning instead of whole-home only.
+        fan_speed_list = device.attributes.get("fan_speed_list")
+        if fan_speed_list:
+            base["fan_speed_list"] = fan_speed_list
+        rooms = device.attributes.get("rooms")
+        if rooms:
+            base["json_attributes_topic"] = state_topic(device) + "/attributes"
     if domain == "media_player":
         base["command_topic"] = command_topic(device)
         # Expose selectable inputs + volume/source support so HA renders the

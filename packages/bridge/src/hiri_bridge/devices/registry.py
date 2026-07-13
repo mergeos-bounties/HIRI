@@ -183,7 +183,11 @@ def default_seed_devices() -> list[Device]:
             domain="vacuum",
             model="HIRI-VAC",
             area="home",
-            state={"state": "docked", "battery": 100},
+            state={"state": "docked", "battery": 100, "fan_speed": "balanced"},
+            attributes={
+                "fan_speed_list": ["quiet", "balanced", "turbo", "max"],
+                "rooms": ["living", "kitchen", "bedroom", "hallway"],
+            },
         ),
         Device(
             id="camera.yard",
@@ -705,6 +709,11 @@ class DeviceRegistry:
         elif domain == "vacuum":
             if action in {"start", "return_to_base", "dock"}:
                 state["state"] = "cleaning" if action == "start" else "docked"
+            if "fan_speed" in data and data["fan_speed"] in dev.attributes.get("fan_speed_list", []):
+                state["fan_speed"] = data["fan_speed"]
+            if action == "clean_room" and data.get("room") in dev.attributes.get("rooms", []):
+                state["state"] = "cleaning"
+                state["current_room"] = data["room"]
         elif domain == "alarm_control_panel":
             arm_map = {
                 "arm_home": "armed_home",
