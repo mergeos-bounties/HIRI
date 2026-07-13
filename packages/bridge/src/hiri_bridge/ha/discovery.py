@@ -88,6 +88,15 @@ def discovery_payload(device: Device) -> dict:
         base["device_class"] = device.attributes.get("device_class", "opening")
         base["payload_on"] = "ON"
         base["payload_off"] = "OFF"
+        if "off_delay" in device.attributes:
+            # Auto-clear after N seconds (e.g. motion/PIR sensors)
+            base["off_delay"] = device.attributes["off_delay"]
+        if "expire_after" in device.attributes:
+            base["expire_after"] = device.attributes["expire_after"]
+        if device.attributes.get("battery"):
+            # Battery-powered contact: expose a JSON attributes topic so HA
+            # can surface the battery level reported alongside the state.
+            base["json_attributes_topic"] = state_topic(device) + "/attributes"
     if domain == "lock":
         base["command_topic"] = command_topic(device)
         base["payload_lock"] = "LOCK"

@@ -41,6 +41,20 @@ def default_seed_devices() -> list[Device]:
             attributes={"device_class": "door"},
         ),
         Device(
+            id="binary_sensor.window_bedroom",
+            name="Bedroom window",
+            domain="binary_sensor",
+            model="HIRI-CONTACT-BAT",
+            area="bedroom",
+            state={"state": "off", "battery": 87},
+            attributes={
+                "device_class": "window",
+                "battery": True,
+                "expire_after": 3600,
+            },
+            adapter="mqtt",
+        ),
+        Device(
             id="sensor.soil_moisture_1",
             name="Soil moisture bed 1",
             domain="sensor",
@@ -275,7 +289,7 @@ def default_seed_devices() -> list[Device]:
             model="HIRI-PIR",
             area="entry",
             state={"state": "off"},
-            attributes={"device_class": "motion"},
+            attributes={"device_class": "motion", "off_delay": 30},
             adapter="mqtt",
         ),
         Device(
