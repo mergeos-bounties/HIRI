@@ -389,6 +389,25 @@ def default_seed_devices() -> list[Device]:
             state={"state": "off", "percentage": 0},
             attributes={"percentage_step": 25},
         ),
+        Device(
+            id="sensor.humidity_bathroom",
+            name="Bathroom humidity",
+            domain="sensor",
+            model="HIRI-RH",
+            area="bathroom",
+            state={"state": 62.0},
+            attributes={"unit_of_measurement": "%", "device_class": "humidity"},
+            adapter="mqtt",
+        ),
+        Device(
+            id="fan.bathroom_exhaust",
+            name="Bathroom exhaust fan",
+            domain="fan",
+            model="HIRI-FAN",
+            area="bathroom",
+            state={"state": "off", "percentage": 0},
+            attributes={"percentage_step": 25},
+        ),
     ]
     return seeds
 

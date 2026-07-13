@@ -469,7 +469,7 @@
     "name": "Bathroom humidity",
     "domain": "sensor",
     "manufacturer": "HIRI",
-    "model": "HIRI-TH",
+    "model": "HIRI-RH",
     "area": "bathroom",
     "online": true,
     "state": {
@@ -681,6 +681,23 @@
     "manufacturer": "HIRI",
     "model": "HIRI-FAN",
     "area": "office",
+    "online": true,
+    "state": {
+      "state": "off",
+      "percentage": 0
+    },
+    "attributes": {
+      "percentage_step": 25
+    },
+    "adapter": "local"
+  },
+  {
+    "id": "fan.bathroom_exhaust",
+    "name": "Bathroom exhaust fan",
+    "domain": "fan",
+    "manufacturer": "HIRI",
+    "model": "HIRI-FAN",
+    "area": "bathroom",
     "online": true,
     "state": {
       "state": "off",
