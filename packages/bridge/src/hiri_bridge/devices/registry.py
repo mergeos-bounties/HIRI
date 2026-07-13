@@ -83,6 +83,25 @@ def default_seed_devices() -> list[Device]:
             attributes={"tilt": True, "device_class": "blind"},
         ),
         Device(
+            id="climate.living_thermostat",
+            name="Living room thermostat",
+            domain="climate",
+            model="HIRI-THERMO",
+            area="living",
+            state={
+                "hvac_mode": "heat",
+                "temperature": 21,
+                "current_temperature": 19,
+                "preset_mode": "comfort",
+            },
+            attributes={
+                "hvac_modes": ["off", "heat", "cool", "auto"],
+                "min_temp": 7,
+                "max_temp": 35,
+                "preset_modes": ["comfort", "eco", "away", "boost"],
+            },
+        ),
+        Device(
             id="cover.garage",
             name="Garage door",
             domain="cover",
