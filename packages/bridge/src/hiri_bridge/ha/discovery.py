@@ -60,6 +60,13 @@ def discovery_payload(device: Device) -> dict:
         base["max_temp"] = device.attributes.get("max_temp", 30)
         base["temp_step"] = 0.5
         base["current_temperature_topic"] = state_topic(device)
+        base["mode_command_topic"] = command_topic(device) + "/mode"
+        base["temperature_command_topic"] = command_topic(device) + "/temp"
+        preset_modes = device.attributes.get("preset_modes")
+        if preset_modes:
+            base["preset_modes"] = preset_modes
+            base["preset_mode_command_topic"] = command_topic(device) + "/preset"
+            base["preset_mode_state_topic"] = state_topic(device) + "/preset"
     if domain == "cover":
         base["command_topic"] = command_topic(device)
         base["position_topic"] = state_topic(device) + "/position"
@@ -94,12 +101,6 @@ def discovery_payload(device: Device) -> dict:
         base["payload_unlock"] = "UNLOCK"
         base["state_locked"] = "LOCKED"
         base["state_unlocked"] = "UNLOCKED"
-    if domain == "climate":
-        base["mode_command_topic"] = command_topic(device) + "/mode"
-        base["temperature_command_topic"] = command_topic(device) + "/temp"
-        base["modes"] = ["off", "cool", "heat", "auto"]
-        base["min_temp"] = 16
-        base["max_temp"] = 30
     if domain == "number":
         base["command_topic"] = command_topic(device)
         base["min"] = device.attributes.get("min", 0)
