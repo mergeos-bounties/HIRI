@@ -327,6 +327,19 @@ def default_seed_devices() -> list[Device]:
             adapter="mqtt",
         ),
         Device(
+            id="sensor.panel_energy",
+            name="Panel energy",
+            domain="sensor",
+            model="HIRI-PWR",
+            area="utility",
+            state={"state": 1834.7},
+            attributes={
+                "unit_of_measurement": "kWh",
+                "device_class": "energy",
+            },
+            adapter="mqtt",
+        ),
+        Device(
             id="switch.washer",
             name="Washer outlet",
             domain="switch",

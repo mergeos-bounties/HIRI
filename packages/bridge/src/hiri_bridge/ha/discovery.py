@@ -82,8 +82,18 @@ def discovery_payload(device: Device) -> dict:
         base["preset_mode_state_topic"] = state_topic(device) + "/preset"
     if domain == "sensor":
         base["unit_of_measurement"] = device.attributes.get("unit_of_measurement", "")
-        base["device_class"] = device.attributes.get("device_class")
-        base["state_class"] = "measurement"
+        dev_class = device.attributes.get("device_class")
+        base["device_class"] = dev_class
+        # Cumulative meters (energy/gas/water/volume) must report
+        # total_increasing so HA long-term statistics + the Energy dashboard
+        # treat them as running totals rather than instantaneous readings.
+        total_classes = {"energy", "gas", "water", "volume", "precipitation"}
+        base["state_class"] = device.attributes.get(
+            "state_class",
+            "total_increasing" if dev_class in total_classes else "measurement",
+        )
+        if "last_reset" in device.attributes:
+            base["last_reset_value_template"] = device.attributes["last_reset"]
     if domain == "binary_sensor":
         base["device_class"] = device.attributes.get("device_class", "opening")
         base["payload_on"] = "ON"
