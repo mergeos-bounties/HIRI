@@ -8,10 +8,10 @@
     "area": "living",
     "online": true,
     "state": {
-      "state": "on",
-      "brightness": 180,
+      "state": "off",
+      "brightness": 0,
       "color_temp": 350,
-      "effect": "pulse"
+      "effect": "none"
     },
     "attributes": {
       "rgb": true,
@@ -950,128 +950,5 @@
       ]
     },
     "adapter": "mqtt"
-  },
-  {
-    "id": "binary_sensor.z2m_kitchen_motion",
-    "name": "kitchen/motion",
-    "domain": "binary_sensor",
-    "manufacturer": "SONOFF",
-    "model": "SNZB-03",
-    "area": "kitchen",
-    "online": true,
-    "state": {
-      "state": "off"
-    },
-    "attributes": {
-      "via": "z2m",
-      "device_class": "motion"
-    },
-    "adapter": "z2m"
-  },
-  {
-    "id": "binary_sensor.z2m_hall_contact",
-    "name": "hall/contact",
-    "domain": "binary_sensor",
-    "manufacturer": "Xiaomi",
-    "model": "MCCGQ11LM",
-    "area": "hall",
-    "online": true,
-    "state": {
-      "state": "off"
-    },
-    "attributes": {
-      "via": "z2m",
-      "device_class": "door"
-    },
-    "adapter": "z2m"
-  },
-  {
-    "id": "light.z2m_living_bulb",
-    "name": "living/bulb",
-    "domain": "light",
-    "manufacturer": "IKEA",
-    "model": "LED1623G12",
-    "area": "living",
-    "online": true,
-    "state": {
-      "state": "off"
-    },
-    "attributes": {
-      "via": "z2m",
-      "device_class": null
-    },
-    "adapter": "z2m"
-  },
-  {
-    "id": "light.tuya_bf123light",
-    "name": "Tuya RGB bulb",
-    "domain": "light",
-    "manufacturer": "Tuya",
-    "model": "dj",
-    "area": "home",
-    "online": true,
-    "state": {
-      "state": "off"
-    },
-    "attributes": {
-      "tuya_id": "bf123light",
-      "category": "dj",
-      "unit_of_measurement": null
-    },
-    "adapter": "tuya"
-  },
-  {
-    "id": "switch.tuya_bf456sock",
-    "name": "Tuya plug farm",
-    "domain": "switch",
-    "manufacturer": "Tuya",
-    "model": "cz",
-    "area": "home",
-    "online": true,
-    "state": {
-      "state": "off"
-    },
-    "attributes": {
-      "tuya_id": "bf456sock",
-      "category": "cz",
-      "unit_of_measurement": null
-    },
-    "adapter": "tuya"
-  },
-  {
-    "id": "sensor.tuya_bf789th",
-    "name": "Tuya temp/hum",
-    "domain": "sensor",
-    "manufacturer": "Tuya",
-    "model": "wsdcg",
-    "area": "home",
-    "online": true,
-    "state": {
-      "state": "22.5"
-    },
-    "attributes": {
-      "tuya_id": "bf789th",
-      "category": "wsdcg",
-      "unit_of_measurement": "\u00b0C"
-    },
-    "adapter": "tuya"
-  },
-  {
-    "id": "binary_sensor.tuya_bf000door",
-    "name": "Tuya door",
-    "domain": "binary_sensor",
-    "manufacturer": "Tuya",
-    "model": "mcs",
-    "area": "home",
-    "online": false,
-    "state": {
-      "state": "off"
-    },
-    "attributes": {
-      "tuya_id": "bf000door",
-      "category": "mcs",
-      "unit_of_measurement": null
-    },
-    "adapter": "tuya"
   }
 ]
