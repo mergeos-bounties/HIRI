@@ -1,0 +1,67 @@
+[
+  {
+    "id": "smart_plug_01",
+    "type": "smart_plug",
+    "name": "Smart Plug",
+    "manufacturer": "TP-Link",
+    "model": "Kasa HS105",
+    "domain": "energy",
+    "properties": {
+      "power": 0,
+      "energy_today": 0,
+      "status": "off"
+    }
+  },
+  {
+    "id": "power_meter_01",
+    "type": "power_meter",
+    "name": "Whole House Meter",
+    "manufacturer": "Sense",
+    "model": "Energy Monitor",
+    "domain": "energy",
+    "properties": {
+      "power": 0,
+      "energy_today": 0,
+      "solar": 0
+    }
+  },
+  {
+    "id": "solar_inverter_01",
+    "type": "solar_inverter",
+    "name": "Solar Inverter",
+    "manufacturer": "Enphase",
+    "model": "IQ7+",
+    "domain": "energy",
+    "properties": {
+      "power": 0,
+      "energy_today": 0,
+      "efficiency": 97
+    }
+  },
+  {
+    "id": "battery_01",
+    "type": "battery",
+    "name": "Home Battery",
+    "manufacturer": "Tesla",
+    "model": "Powerwall",
+    "domain": "energy",
+    "properties": {
+      "charge": 80,
+      "power": 0,
+      "capacity": 13.5
+    }
+  },
+  {
+    "id": "ev_charger_01",
+    "type": "ev_charger",
+    "name": "EV Charger",
+    "manufacturer": "ChargePoint",
+    "model": "Home Flex",
+    "domain": "energy",
+    "properties": {
+      "power": 0,
+      "energy_today": 0,
+      "status": "standby"
+    }
+  }
+]
