@@ -1145,5 +1145,22 @@
       "battery": 92
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "binary_sensor.smoke_hallway",
+    "name": "Hallway smoke detector",
+    "domain": "binary_sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-SMOKE",
+    "area": "hallway",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "device_class": "smoke",
+      "battery": 88
+    },
+    "adapter": "mqtt"
   }
 ]
