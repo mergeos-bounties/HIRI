@@ -1,0 +1,64 @@
+[
+  {
+    "id": "thermostat_01",
+    "type": "thermostat",
+    "name": "Smart Thermostat",
+    "manufacturer": "Nest",
+    "model": "Learning",
+    "domain": "climate",
+    "properties": {
+      "temperature": 22,
+      "mode": "auto",
+      "humidity": 45
+    }
+  },
+  {
+    "id": "humidifier_01",
+    "type": "humidifier",
+    "name": "Tower Humidifier",
+    "manufacturer": "Levoit",
+    "model": "LV600S",
+    "domain": "climate",
+    "properties": {
+      "humidity": 50,
+      "mode": "auto"
+    }
+  },
+  {
+    "id": "ac_unit_01",
+    "type": "air_conditioner",
+    "name": "Window AC",
+    "manufacturer": "Frigidaire",
+    "model": "FFRA0511R1",
+    "domain": "climate",
+    "properties": {
+      "temperature": 24,
+      "mode": "cool",
+      "fan": "auto"
+    }
+  },
+  {
+    "id": "heater_01",
+    "type": "heater",
+    "name": "Space Heater",
+    "manufacturer": "Dyson",
+    "model": "HP07",
+    "domain": "climate",
+    "properties": {
+      "temperature": 21,
+      "mode": "heat"
+    }
+  },
+  {
+    "id": "fan_01",
+    "type": "fan",
+    "name": "Ceiling Fan",
+    "manufacturer": "Hunter",
+    "model": "Brushed Nickel",
+    "domain": "climate",
+    "properties": {
+      "speed": 3,
+      "direction": "forward"
+    }
+  }
+]
