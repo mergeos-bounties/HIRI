@@ -9,7 +9,7 @@
     "online": true,
     "state": {
       "state": "on",
-      "brightness": 180,
+      "brightness": 100,
       "color_temp": 350,
       "effect": "pulse"
     },
@@ -1128,5 +1128,22 @@
       ]
     },
     "adapter": "local"
+  },
+  {
+    "id": "binary_sensor.leak_kitchen",
+    "name": "Kitchen leak sensor",
+    "domain": "binary_sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-LEAK",
+    "area": "kitchen",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "device_class": "moisture",
+      "battery": 92
+    },
+    "adapter": "mqtt"
   }
 ]

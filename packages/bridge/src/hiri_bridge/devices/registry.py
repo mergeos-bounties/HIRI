@@ -571,7 +571,13 @@ class DeviceRegistry:
             self.seed()
 
     def seed(self) -> None:
-        self._devices = {d.id: d for d in default_seed_devices()}
+        """Ensure default demo devices exist without wiping extra packs.
+
+        Full replace used to truncate committed device packs when API tests
+        (or ``POST /devices/seed``) hit the real registry path.
+        """
+        for d in default_seed_devices():
+            self._devices.setdefault(d.id, d)
         self.save()
 
     def save(self) -> None:
