@@ -1340,5 +1340,30 @@
       "battery": 91
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "climate.guest_room_ac",
+    "name": "Guest room AC",
+    "domain": "climate",
+    "manufacturer": "HIRI",
+    "model": "HIRI-AC",
+    "area": "guest",
+    "online": true,
+    "state": {
+      "state": "cool",
+      "temperature": 23,
+      "current_temperature": 25.5
+    },
+    "attributes": {
+      "hvac_modes": [
+        "off",
+        "cool",
+        "heat",
+        "fan_only"
+      ],
+      "min_temp": 16,
+      "max_temp": 30
+    },
+    "adapter": "mqtt"
   }
 ]
