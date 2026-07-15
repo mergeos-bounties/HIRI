@@ -1559,5 +1559,23 @@
       ]
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.outdoor_noise",
+    "name": "Outdoor noise",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-SPL",
+    "area": "exterior",
+    "online": true,
+    "state": {
+      "state": "40"
+    },
+    "attributes": {
+      "device_class": "sound_pressure",
+      "unit_of_measurement": "dB",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
