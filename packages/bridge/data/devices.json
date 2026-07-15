@@ -1538,5 +1538,26 @@
       ]
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "vacuum.main_floor",
+    "name": "Main floor vacuum",
+    "domain": "vacuum",
+    "manufacturer": "HIRI",
+    "model": "HIRI-VAC",
+    "area": "living",
+    "online": true,
+    "state": {
+      "state": "docked"
+    },
+    "attributes": {
+      "battery_level": 100,
+      "fan_speed_list": [
+        "quiet",
+        "auto",
+        "max"
+      ]
+    },
+    "adapter": "mqtt"
   }
 ]
