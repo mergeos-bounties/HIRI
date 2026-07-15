@@ -1323,5 +1323,22 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "binary_sensor.water_leak_laundry",
+    "name": "Laundry water leak",
+    "domain": "binary_sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-LEAK",
+    "area": "laundry",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "device_class": "moisture",
+      "battery": 91
+    },
+    "adapter": "mqtt"
   }
 ]
