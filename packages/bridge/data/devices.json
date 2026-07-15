@@ -314,6 +314,102 @@
     "adapter": "local"
   },
   {
+    "id": "media_player.family_room_tv",
+    "name": "Family room TV",
+    "domain": "media_player",
+    "manufacturer": "HIRI",
+    "model": "HIRI-TV",
+    "area": "family_room",
+    "online": true,
+    "state": {
+      "state": "off",
+      "volume_level": 0.3,
+      "source": "HDMI 1"
+    },
+    "attributes": {
+      "device_class": "tv",
+      "source_list": [
+        "HDMI 1",
+        "HDMI 2",
+        "Disney+",
+        "Game Console",
+        "Antenna"
+      ],
+      "supported_features": [
+        "turn_on",
+        "turn_off",
+        "play",
+        "pause",
+        "volume_set",
+        "select_source"
+      ]
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "media_player.patio_speaker",
+    "name": "Patio speaker",
+    "domain": "media_player",
+    "manufacturer": "HIRI",
+    "model": "HIRI-SPK",
+    "area": "patio",
+    "online": true,
+    "state": {
+      "state": "idle",
+      "volume_level": 0.45,
+      "source": "Bluetooth"
+    },
+    "attributes": {
+      "device_class": "speaker",
+      "source_list": [
+        "Bluetooth",
+        "AirPlay",
+        "Line-in"
+      ],
+      "supported_features": [
+        "turn_on",
+        "turn_off",
+        "play",
+        "pause",
+        "volume_set",
+        "select_source"
+      ]
+    },
+    "adapter": "mqtt"
+  },
+  {
+    "id": "media_player.den_streamer",
+    "name": "Den streamer",
+    "domain": "media_player",
+    "manufacturer": "HIRI",
+    "model": "HIRI-STREAM",
+    "area": "den",
+    "online": true,
+    "state": {
+      "state": "idle",
+      "volume_level": 0.35,
+      "source": "Plex"
+    },
+    "attributes": {
+      "device_class": "receiver",
+      "source_list": [
+        "Plex",
+        "Spotify",
+        "YouTube",
+        "Internet Radio"
+      ],
+      "supported_features": [
+        "turn_on",
+        "turn_off",
+        "play",
+        "pause",
+        "volume_set",
+        "select_source"
+      ]
+    },
+    "adapter": "mqtt"
+  },
+  {
     "id": "vacuum.bot_1",
     "name": "Vacuum bot",
     "domain": "vacuum",
