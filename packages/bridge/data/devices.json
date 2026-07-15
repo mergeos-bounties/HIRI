@@ -1383,5 +1383,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "cover.garage_door_main",
+    "name": "Garage door main",
+    "domain": "cover",
+    "manufacturer": "HIRI",
+    "model": "HIRI-GARAGE",
+    "area": "garage",
+    "online": true,
+    "state": {
+      "state": "closed",
+      "current_position": 0
+    },
+    "attributes": {
+      "device_class": "garage",
+      "supported_features": 15
+    },
+    "adapter": "mqtt"
   }
 ]
