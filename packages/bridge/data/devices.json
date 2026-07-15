@@ -1649,5 +1649,21 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "switch.workshop_heater",
+    "name": "Workshop heater",
+    "domain": "switch",
+    "manufacturer": "HIRI",
+    "model": "HIRI-WHEAT",
+    "area": "workshop",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "icon": "mdi:radiator"
+    },
+    "adapter": "mqtt"
   }
 ]
