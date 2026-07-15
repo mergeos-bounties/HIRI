@@ -1251,5 +1251,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.uv_index_roof",
+    "name": "Roof UV index",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-UV",
+    "area": "roof",
+    "online": true,
+    "state": {
+      "state": "4"
+    },
+    "attributes": {
+      "device_class": "uv_index",
+      "unit_of_measurement": "UV index",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
