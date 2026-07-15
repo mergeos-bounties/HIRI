@@ -1269,5 +1269,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.wind_speed_roof",
+    "name": "Roof wind speed",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-WIND",
+    "area": "roof",
+    "online": true,
+    "state": {
+      "state": "3.2"
+    },
+    "attributes": {
+      "device_class": "wind_speed",
+      "unit_of_measurement": "m/s",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
