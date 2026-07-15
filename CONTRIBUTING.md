@@ -121,6 +121,12 @@ HIRI uses [MergeOS MRG bounties](docs/BOUNTY.md).
 | Large (major features) | 100 |
 | XL (end-to-end, platform) | 200 |
 
+## Device registry policy
+
+Device packs must **append** to  — never replace the whole file.
+See [Devices.json Append-Only Policy](docs/devices-json-append-only-policy.md) for the full policy
+(seed merge-only behavior, correct patterns, CI checks, recovery).
+
 ## Code quality
 
 - **Python**: `ruff check`, type hints encouraged, pytest for tests
