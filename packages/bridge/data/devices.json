@@ -1365,5 +1365,23 @@
       "max_temp": 30
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.pm25_outdoor",
+    "name": "Outdoor PM2.5",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-PM25",
+    "area": "exterior",
+    "online": true,
+    "state": {
+      "state": "18"
+    },
+    "attributes": {
+      "device_class": "pm25",
+      "unit_of_measurement": "\u00b5g/m\u00b3",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
