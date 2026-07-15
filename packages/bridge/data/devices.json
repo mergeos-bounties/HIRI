@@ -1401,5 +1401,26 @@
       "supported_features": 15
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "media_player.living_tv",
+    "name": "Living room TV",
+    "domain": "media_player",
+    "manufacturer": "HIRI",
+    "model": "HIRI-TV",
+    "area": "living",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "device_class": "tv",
+      "supported_features": 152461,
+      "source_list": [
+        "hdmi1",
+        "app"
+      ]
+    },
+    "adapter": "mqtt"
   }
 ]
