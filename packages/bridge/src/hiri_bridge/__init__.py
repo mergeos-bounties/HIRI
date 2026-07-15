@@ -1,3 +1,3 @@
 """HIRI bridge core."""
 
-__version__ = "0.2.50"
+__version__ = "0.2.51"

@@ -1595,5 +1595,23 @@
       "max_humidity": 70
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.outdoor_noise_db",
+    "name": "Outdoor noise level",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-NOISE",
+    "area": "garden",
+    "online": true,
+    "state": {
+      "state": "42"
+    },
+    "attributes": {
+      "device_class": "sound_pressure",
+      "unit_of_measurement": "dB",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
