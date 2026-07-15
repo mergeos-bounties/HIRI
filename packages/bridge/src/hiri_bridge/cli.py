@@ -136,23 +136,27 @@ def devices_stats() -> None:
 
 @devices_app.command("search")
 def devices_search(
-    query: str = typer.Argument(..., help="Substring over id/name/area/domain"),
+    query: str = typer.Argument(..., help="Substring over id/name/area/domain/manufacturer/model"),
     limit: int = typer.Option(30, "--limit", "-n", min=1, max=200),
+    manufacturer: str | None = typer.Option(None, "--manufacturer", "-m", help="Filter by manufacturer"),
 ) -> None:
-    """Search devices by id, name, area, or domain."""
+    """Search devices by id, name, area, domain, manufacturer, or model."""
     q = query.strip().lower()
     reg = _registry()
-    table = Table(title=f"Device search: {query}")
+    table = Table(title=f"Device search: {query}" + (f" mfg={manufacturer}" if manufacturer else ""))
     table.add_column("ID")
     table.add_column("Domain")
     table.add_column("Area")
     table.add_column("Name")
+    table.add_column("Manufacturer")
     n = 0
     for d in reg.list():
-        blob = f"{d.id} {d.domain} {d.name} {getattr(d, 'area', '')}".lower()
+        if manufacturer and d.manufacturer.lower() != manufacturer.strip().lower():
+            continue
+        blob = f"{d.id} {d.domain} {d.name} {getattr(d, 'area', '')} {d.manufacturer} {d.model}".lower()
         if q not in blob:
             continue
-        table.add_row(d.id, d.domain, str(getattr(d, "area", "")), d.name)
+        table.add_row(d.id, d.domain, str(getattr(d, "area", "")), d.name, d.manufacturer)
         n += 1
         if n >= limit:
             break
@@ -217,6 +221,36 @@ def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(disc, indent=2) + "\n", encoding="utf-8")
     console.print(f"[green]Wrote[/green] {path} entities={len(disc)}")
+
+
+@ha_app.command("entity-mapping")
+def ha_entity_mapping(
+    out: Path | None = typer.Option(None, "--out", "-o"),
+) -> None:
+    """Export device-to-entity mapping for HA configuration."""
+    reg = _registry()
+    mapping = {}
+    for d in reg.list():
+        entity_id = d.id
+        mapping[entity_id] = {
+            "entity_id": entity_id,
+            "name": d.name,
+            "domain": d.domain,
+            "manufacturer": d.manufacturer,
+            "model": d.model,
+            "area": d.area,
+            "adapter": d.adapter,
+            "online": d.online,
+        }
+    path = out or (OUT_DIR / "entity_mapping.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(mapping, indent=2) + "\n", encoding="utf-8")
+    console.print(f"[green]Wrote[/green] {path} devices={len(mapping)}")
+    # Show summary
+    by_manufacturer: dict[str, int] = {}
+    for d in reg.list():
+        by_manufacturer[d.manufacturer] = by_manufacturer.get(d.manufacturer, 0) + 1
+    console.print(f"[dim]Manufacturers: {json.dumps(by_manufacturer)}[/dim]")
 
 
 @adapters_app.command("list")
