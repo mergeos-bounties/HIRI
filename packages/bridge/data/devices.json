@@ -1613,5 +1613,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.uv_index_patio",
+    "name": "Patio UV index",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-UV",
+    "area": "garden",
+    "online": true,
+    "state": {
+      "state": "3"
+    },
+    "attributes": {
+      "device_class": "uv_index",
+      "unit_of_measurement": "UV index",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
