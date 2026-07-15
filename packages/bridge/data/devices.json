@@ -1287,5 +1287,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.rain_rate_yard",
+    "name": "Yard rain rate",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-RAIN",
+    "area": "yard",
+    "online": true,
+    "state": {
+      "state": "0.0"
+    },
+    "attributes": {
+      "device_class": "precipitation_intensity",
+      "unit_of_measurement": "mm/h",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
