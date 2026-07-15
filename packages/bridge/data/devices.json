@@ -1422,5 +1422,25 @@
       ]
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "fan.bedroom_ceiling",
+    "name": "Bedroom ceiling fan",
+    "domain": "fan",
+    "manufacturer": "HIRI",
+    "model": "HIRI-FAN",
+    "area": "bedroom",
+    "online": true,
+    "state": {
+      "state": "off",
+      "percentage": 0
+    },
+    "attributes": {
+      "preset_modes": [
+        "sleep",
+        "breeze"
+      ]
+    },
+    "adapter": "mqtt"
   }
 ]
