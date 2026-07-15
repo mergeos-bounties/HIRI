@@ -1,0 +1,7 @@
+{
+  "device_id": "lock.front_door",
+  "type": "smart_lock",
+  "policy": "append-only",
+  "description": "Front door main lock. Audit logs and state changes are append-only.",
+  "status": "active"
+}
