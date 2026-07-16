@@ -213,6 +213,18 @@ def devices_sim_history(
     console.print_json(data={"id": device_id, "n": len(rows), "history": rows})
 
 
+@devices_app.command("export")
+def devices_export(
+    out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),
+) -> None:
+    """Export device registry as a JSON snapshot (no tokens/secrets)."""
+    reg = _registry()
+    snapshot = [d.model_dump() for d in reg.list()]
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
+    console.print(f"[green]Wrote[/green] {out} devices={len(snapshot)}")
+
+
 @ha_app.command("discovery")
 def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:
     reg = _registry()
