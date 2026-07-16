@@ -1874,5 +1874,25 @@
     },
     "attributes": {},
     "adapter": "mqtt"
+  },
+  {
+    "id": "light.porch_sconce",
+    "name": "Porch sconce",
+    "domain": "light",
+    "manufacturer": "HIRI",
+    "model": "HIRI-DIM",
+    "area": "porch",
+    "online": true,
+    "state": {
+      "state": "off",
+      "brightness": 0
+    },
+    "attributes": {
+      "device_class": "light",
+      "supported_color_modes": [
+        "brightness"
+      ]
+    },
+    "adapter": "mqtt"
   }
 ]

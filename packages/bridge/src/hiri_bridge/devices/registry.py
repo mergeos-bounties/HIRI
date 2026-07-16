@@ -623,6 +623,19 @@ def default_seed_devices() -> list[Device]:
             attributes={"supported_features": ["lock", "unlock"]},
             adapter="mqtt",
         ),
+        Device(
+            id="light.porch_sconce",
+            name="Porch sconce",
+            domain="light",
+            model="HIRI-DIM",
+            area="porch",
+            state={"state": "off", "brightness": 0},
+            attributes={
+                "device_class": "light",
+                "supported_color_modes": ["brightness"],
+            },
+            adapter="mqtt",
+        ),
     ]
     return seeds
 
