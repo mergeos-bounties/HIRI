@@ -1,0 +1,7 @@
+{
+  "device_id": "3_vacuum_entities_robot_cleaners_append_only",
+  "name": "3 vacuum entities (robot cleaners) append-only",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
