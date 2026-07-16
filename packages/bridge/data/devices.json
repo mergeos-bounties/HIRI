@@ -1665,5 +1665,21 @@
       "icon": "mdi:radiator"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "switch.porch_light_timer",
+    "name": "Porch light timer",
+    "domain": "switch",
+    "manufacturer": "HIRI",
+    "model": "HIRI-PORCH",
+    "area": "entry",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {
+      "icon": "mdi:outdoor-lamp"
+    },
+    "adapter": "mqtt"
   }
 ]
