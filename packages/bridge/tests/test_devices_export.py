@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 
 
 def test_devices_export_writes_json(tmp_path: Path) -> None:
