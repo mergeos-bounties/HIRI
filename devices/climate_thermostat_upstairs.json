@@ -1,0 +1,7 @@
+{
+  "device_id": "climate_thermostat_upstairs",
+  "name": "climate.thermostat_upstairs",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
