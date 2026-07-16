@@ -1,0 +1,7 @@
+{
+  "device_id": "switch_irrigation_zone_a",
+  "name": "switch.irrigation_zone_a",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
