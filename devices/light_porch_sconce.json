@@ -1,0 +1,7 @@
+{
+  "device_id": "light_porch_sconce",
+  "name": "light.porch_sconce",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
