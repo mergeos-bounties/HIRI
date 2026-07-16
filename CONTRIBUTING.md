@@ -121,6 +121,13 @@ HIRI uses [MergeOS MRG bounties](docs/BOUNTY.md).
 | Large (major features) | 100 |
 | XL (end-to-end, platform) | 200 |
 
+## Device packs
+
+When creating device packs in `packages/bridge/data/packs/`, follow the **append-only policy**:
+
+> ⚠️ **Important**: Device packs must **append** to the registry, never replace `devices.json`.  
+> See [docs/devices-packs-policy.md](docs/devices-packs-policy.md) for the full policy.
+
 ## Code quality
 
 - **Python**: `ruff check`, type hints encouraged, pytest for tests
