@@ -1,0 +1,7 @@
+{
+  "device_id": "light_rgb_ct_effects",
+  "name": "`light` \u2014 RGB / CT / effects",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
