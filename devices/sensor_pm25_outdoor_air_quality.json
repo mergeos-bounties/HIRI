@@ -1,0 +1,7 @@
+{
+  "device_id": "sensor_pm25_outdoor_air_quality",
+  "name": "sensor.pm25_outdoor air quality",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
