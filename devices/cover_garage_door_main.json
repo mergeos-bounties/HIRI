@@ -1,0 +1,7 @@
+{
+  "device_id": "cover_garage_door_main",
+  "name": "cover.garage_door_main",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
