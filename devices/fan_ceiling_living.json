@@ -1,0 +1,7 @@
+{
+  "device_id": "fan_ceiling_living",
+  "name": "fan.ceiling_living",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
