@@ -1,0 +1,7 @@
+{
+  "device_id": "binary_sensor_water_leak_kitchen",
+  "name": "binary_sensor.water_leak_kitchen",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
