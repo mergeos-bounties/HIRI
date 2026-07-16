@@ -1,0 +1,7 @@
+{
+  "device_id": "sensor_soil_moisture_planter",
+  "name": "sensor.soil_moisture_planter",
+  "type": "sensor",
+  "domain": "home_assistant",
+  "append_only": true
+}
