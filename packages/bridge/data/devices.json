@@ -1699,5 +1699,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.soil_moisture_herb",
+    "name": "Herb planter soil moisture",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-SOIL",
+    "area": "kitchen",
+    "online": true,
+    "state": {
+      "state": "42"
+    },
+    "attributes": {
+      "device_class": "moisture",
+      "unit_of_measurement": "%",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
