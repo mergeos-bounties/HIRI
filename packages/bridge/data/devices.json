@@ -1753,5 +1753,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.attic_temp",
+    "name": "Attic temperature",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-ATTIC-T",
+    "area": "attic",
+    "online": true,
+    "state": {
+      "state": "28.4"
+    },
+    "attributes": {
+      "device_class": "temperature",
+      "unit_of_measurement": "\u00b0C",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
