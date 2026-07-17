@@ -1717,5 +1717,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.garage_door_angle",
+    "name": "Garage door angle",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-GARAGE",
+    "area": "garage",
+    "online": true,
+    "state": {
+      "state": "0"
+    },
+    "attributes": {
+      "device_class": "opening",
+      "unit_of_measurement": "\u00b0",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
