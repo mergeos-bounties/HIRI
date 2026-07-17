@@ -48,119 +48,6 @@ Primary offline path: **bridge** (`hiri-bridge demo`).
 | Capability | Description |
 | --- | --- |
 | **Device registry** | Seed + import devices; domains (light, fan, sensor, …) |
-| **HA discovery** | Export MQTT discovery payloads offline |
-| **Adapters** | local, z2m, tuya, ha_rest, mqtt, matter (scaffold) |
-| **MQTT dry-run** | Publish discovery without a live broker |
-| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list, water_heater away mode, alarm arm modes) in-memory |
-| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list, button multi-press, alarm arm modes) in-memory |
-| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list, camera snapshot URL, alarm arm modes) in-memory |
-| **Command demo** | Apply sample commands (brightness, effects, fan presets, climate thermostat presets, cover tilt, select scene modes, number min/max clamping, media_player source list, vacuum room map, alarm arm modes) in-memory |
-
----
-
-## Screenshots
-
-| Device registry | HA discovery export |
-| :---: | :---: |
-| ![Devices](docs/screenshots/demo-devices.png) | ![Discovery](docs/screenshots/demo-discovery.png) |
-| *Live registry after demo seed/import* | *discovery.json entities* |
-
----
-
-## Quick start (bridge)
-
-```powershell
-cd packages\bridge
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -e ".[dev,api]"
-
-hiri-bridge version
-hiri-bridge demo
-hiri-bridge devices list
-hiri-bridge adapters list
-```
-
-Demo writes HA discovery JSON under the bridge `OUT_DIR` (e.g. `discovery.json`).
-
----
-
-## CLI reference
-
-| Command | Purpose |
-| --- | --- |
-| `hiri-bridge version` | Version + domains |
-| `hiri-bridge demo` | Seed registry, adapters, MQTT dry-run, export discovery |
-| `hiri-bridge devices list [-d domain]` | List devices |
-| `hiri-bridge adapters list` | Adapter catalog |
-| `hiri-bridge ha …` | Home Assistant helpers |
-| `hiri-bridge mqtt …` | MQTT discovery publish |
-| `hiri-bridge serve` | FastAPI bridge API |
-
----
-
-## Adapters
-
-| Adapter | Kind | Notes |
-| --- | --- | --- |
-| `local` | builtin | In-memory seed devices (default offline) |
-| `z2m` | mqtt_http | Zigbee2MQTT import (fixture offline) |
-| `tuya` | cloud_local | Mapping stub |
-| `ha_rest` | http | HA REST `/api/states` (token for live) |
-| `mqtt` | mqtt | Discovery publish (optional paho) |
-| `matter` | scaffold | Planned |
-
----
-
-## Diagrams
-
-System architecture and workflow — full width. Open the HTML files for **dark/light theme** and export (PNG/SVG).
-
-### Architecture
-
-[Open interactive diagram](docs/diagrams/architecture.html)
-
-<p align="center">
-  <img src="docs/diagrams/architecture.svg" alt="HIRI architecture" width="100%" />
-</p>
-
-### Workflow
-
-[Open interactive diagram](docs/diagrams/workflow.html)
-
-<p align="center">
-  <img src="docs/diagrams/workflow.svg" alt="HIRI workflow" width="100%" />
-</p>
-
-*Generated with [archify](https://github.com/tt-a1i).*
-
----
-
-## Architecture
-
-```text
-                    ┌─────────────┐
-   ESP firmware ───►│  MQTT / LAN │◄─── Zigbee2MQTT / Tuya stubs
-                    └──────┬──────┘
-                           ▼
-                 ┌───────────────────┐
-                 │   HIRI-bridge     │
-                 │ registry · HA disc│
-                 │ REST · adapters   │
-                 └─────────┬─────────┘
-                           ▼
-                 Home Assistant (MQTT discovery)
-                           ▲
-                 web / admin / mobile clients
-```
-
----
-
-## Safety
-
-- **Never commit** HA long-lived tokens, MQTT passwords, or Wi-Fi credentials.
-- Firmware defaults must not embed production secrets.
-- Prefer dry-run MQTT in demos and CI.
 
 ---
 
@@ -172,6 +59,10 @@ pytest -q
 ruff check src tests
 hiri-bridge demo
 ```
+
+### Device Entity ID Naming
+
+When creating device packs, follow the [Device Entity ID Naming Conventions](docs/DEVICE_ENTITY_ID_NAMING.md) for consistent `domain.object_id` patterns.
 
 ---
 
