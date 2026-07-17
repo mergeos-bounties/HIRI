@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hiri-bridge"
-version = "0.2.58"
+version = "0.2.59"
 description = "HIRI bridge: Home Assistant MQTT discovery + multi-device smart home bridge"
 readme = "README.md"
 requires-python = ">=3.11"

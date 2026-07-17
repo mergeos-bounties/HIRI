@@ -1735,5 +1735,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.pool_ph",
+    "name": "Pool pH",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-POOL-PH",
+    "area": "outdoor",
+    "online": true,
+    "state": {
+      "state": "7.2"
+    },
+    "attributes": {
+      "device_class": "ph",
+      "unit_of_measurement": "pH",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
