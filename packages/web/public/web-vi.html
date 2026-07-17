@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HIRI Web</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+    header { padding: 1rem 1.25rem; border-bottom: 1px solid #1e293b; }
+    main { padding: 1rem 1.25rem; max-width: 1100px; margin: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid #1e293b; }
+    th { color: #94a3b8; font-weight: 600; }
+    input { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 0.35rem 0.5rem; border-radius: 6px; }
+    button { background: #0284c7; color: #fff; border: 0; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; }
+    .ok { color: #4ade80; } .bad { color: #f87171; }
+    pre { background: #1e293b; padding: 0.75rem; border-radius: 8px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>HIRI Web</strong>
+    <span style="color:#94a3b8;margin-left:0.75rem">điều khiển thiết bị thông minh</span>
+  </header>
+  <main>
+    <p>
+      API <input id="base" value="http://127.0.0.1:8780" size="28" />
+      <button id="reload">Làm mới</button>
+      <button id="seed">Tạo dữ liệu mẫu</button>
+    </p>
+    <p id="status" class="bad">Chưa kết nối</p>
+    <table>
+      <thead><tr><th>ID</th><th>Lĩnh vực</th><th>Tên</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </main>
+  <script>
+    const statusEl = document.getElementById('status');
+    const tbody = document.getElementById('tbody');
+    function base() { return document.getElementById('base').value.replace(/\/$/, ''); }
+    async function load() {
+      try {
+        const stats = await fetch(base() + '/stats').then(r => r.json());
+        const devices = await fetch(base() + '/devices').then(r => r.json());
+        statusEl.className = 'ok';
+        statusEl.textContent = `OK · ${stats.total} thiết bị · lĩnh vực: ${Object.keys(stats.by_domain||{}).length}`;
+        tbody.innerHTML = devices.map(d => `<tr>
+          <td>${d.id}</td><td>${d.domain}</td><td>${d.name}</td>
+          <td><code>${JSON.stringify(d.state)}</code></td>
+          <td><button onclick="toggle('${d.id}')">Bật/Tắt</button></td></tr>`).join('');
+      } catch (e) {
+        statusEl.className = 'bad';
+        statusEl.textContent = 'Bridge ngoại tuyến — chạy hiri-bridge serve — ' + e;
+      }
+    }
+    document.getElementById('reload').onclick = load;
+    document.getElementById('seed').onclick = async () => {
+      await fetch(base() + '/devices/seed', { method: 'POST' });
+      load();
+    };
+    async function toggle(id) {
+      await fetch(base() + `/devices/${id}/toggle`, { method: 'POST' });
+      load();
+    }
+    load();
+  </script>
+</body>
+</html>
