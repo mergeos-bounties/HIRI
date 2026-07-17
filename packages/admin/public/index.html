@@ -8,13 +8,35 @@
     body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
     header { padding: 1rem 1.25rem; border-bottom: 1px solid #1e293b; }
     main { padding: 1rem 1.25rem; max-width: 1100px; margin: auto; }
+    h2 { margin: 1.5rem 0 0.25rem; font-size: 1.1rem; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid #1e293b; }
     th { color: #94a3b8; font-weight: 600; }
     input { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 0.35rem 0.5rem; border-radius: 6px; }
     button { background: #0284c7; color: #fff; border: 0; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; }
     .ok { color: #4ade80; } .bad { color: #f87171; }
+    .section-summary { color: #94a3b8; margin: 0 0 0.75rem; font-size: 0.85rem; }
+    .floorplan { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.75rem; }
+    .area-card { min-width: 0; background: #111c30; border: 1px solid #334155; border-radius: 8px; padding: 0.75rem; }
+    .area-header { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.6rem; }
+    .area-name { font-size: 0.95rem; font-weight: 700; overflow-wrap: anywhere; }
+    .area-total { color: #7dd3fc; font-size: 0.8rem; white-space: nowrap; }
+    .device-list { display: grid; gap: 0.35rem; }
+    .device-row { display: grid; grid-template-columns: 0.5rem minmax(0, 1fr) auto; align-items: center; gap: 0.45rem; padding: 0.4rem 0.45rem; background: #1e293b; border-radius: 6px; }
+    .device-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #f87171; }
+    .device-dot.online { background: #4ade80; }
+    .device-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; }
+    .device-domain { color: #94a3b8; font-size: 0.72rem; }
+    .empty { color: #94a3b8; border: 1px dashed #334155; border-radius: 8px; padding: 1rem; }
+    .table-wrap { width: 100%; overflow-x: auto; }
     pre { background: #1e293b; padding: 0.75rem; border-radius: 8px; overflow: auto; }
+    @media (max-width: 600px) {
+      header, main { padding-inline: 0.75rem; }
+      main > p:first-child { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      main > p:first-child input { grid-column: 1 / -1; width: auto; }
+      main > p:first-child button { margin: 0; }
+      .floorplan { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -30,10 +52,20 @@
       <button id="disc">Export discovery JSON</button>
     </p>
     <p id="status" class="bad">Not connected</p>
-    <table>
-      <thead><tr><th>ID</th><th>Domain</th><th>Name</th><th>Adapter</th><th>State</th></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <section aria-labelledby="floorplan-title">
+      <h2 id="floorplan-title">Area floorplan</h2>
+      <p id="area-summary" class="section-summary">0 areas</p>
+      <div id="floorplan" class="floorplan"></div>
+    </section>
+    <section aria-labelledby="registry-title">
+      <h2 id="registry-title">Device registry</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Domain</th><th>Name</th><th>Area</th><th>Adapter</th><th>State</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
     <h3>HA MQTT discovery (preview)</h3>
     <pre id="discovery">[]</pre>
   </main>
@@ -41,19 +73,105 @@
     const statusEl = document.getElementById('status');
     const tbody = document.getElementById('tbody');
     const discEl = document.getElementById('discovery');
+    const floorplanEl = document.getElementById('floorplan');
+    const areaSummaryEl = document.getElementById('area-summary');
     function base() { return document.getElementById('base').value.replace(/\/$/, ''); }
+
+    function renderRegistry(devices) {
+      tbody.replaceChildren();
+      for (const device of devices) {
+        const row = document.createElement('tr');
+        const values = [
+          device.id,
+          device.domain,
+          device.name,
+          device.area || 'Unassigned',
+          device.adapter,
+        ];
+        for (const value of values) {
+          const cell = document.createElement('td');
+          cell.textContent = value ?? '';
+          row.appendChild(cell);
+        }
+        const stateCell = document.createElement('td');
+        const code = document.createElement('code');
+        code.textContent = JSON.stringify(device.state);
+        stateCell.appendChild(code);
+        row.appendChild(stateCell);
+        tbody.appendChild(row);
+      }
+    }
+
+    function renderFloorplan(devices) {
+      const groups = new Map();
+      for (const device of devices) {
+        const area = (device.area || 'Unassigned').trim() || 'Unassigned';
+        if (!groups.has(area)) groups.set(area, []);
+        groups.get(area).push(device);
+      }
+
+      floorplanEl.replaceChildren();
+      areaSummaryEl.textContent = `${groups.size} areas / ${devices.length} devices`;
+      if (!groups.size) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'No devices available';
+        floorplanEl.appendChild(empty);
+        return;
+      }
+
+      const areas = [...groups.entries()].sort(([left], [right]) => left.localeCompare(right));
+      for (const [area, areaDevices] of areas) {
+        const card = document.createElement('article');
+        card.className = 'area-card';
+
+        const header = document.createElement('div');
+        header.className = 'area-header';
+        const name = document.createElement('span');
+        name.className = 'area-name';
+        name.textContent = area.replaceAll('_', ' ');
+        const total = document.createElement('span');
+        total.className = 'area-total';
+        total.textContent = `${areaDevices.length} device${areaDevices.length === 1 ? '' : 's'}`;
+        header.append(name, total);
+
+        const list = document.createElement('div');
+        list.className = 'device-list';
+        for (const device of areaDevices.sort((a, b) => (a.name || '').localeCompare(b.name || ''))) {
+          const row = document.createElement('div');
+          row.className = 'device-row';
+          row.title = `${device.name || device.id || 'Unnamed'} (${device.id || 'unknown id'})`;
+
+          const dot = document.createElement('span');
+          dot.className = `device-dot${device.online ? ' online' : ''}`;
+          dot.setAttribute('aria-label', device.online ? 'Online' : 'Offline');
+          const deviceName = document.createElement('span');
+          deviceName.className = 'device-name';
+          deviceName.textContent = device.name || device.id || 'Unnamed';
+          const domain = document.createElement('span');
+          domain.className = 'device-domain';
+          domain.textContent = device.domain || 'unknown';
+          row.append(dot, deviceName, domain);
+          list.appendChild(row);
+        }
+
+        card.append(header, list);
+        floorplanEl.appendChild(card);
+      }
+    }
+
     async function load() {
       try {
         const stats = await fetch(base() + '/stats').then(r => r.json());
         const devices = await fetch(base() + '/devices').then(r => r.json());
         statusEl.className = 'ok';
         statusEl.textContent = `OK · ${stats.total} devices · domains: ${Object.keys(stats.by_domain||{}).length}`;
-        tbody.innerHTML = devices.map(d => `<tr>
-          <td>${d.id}</td><td>${d.domain}</td><td>${d.name}</td><td>${d.adapter}</td>
-          <td><code>${JSON.stringify(d.state)}</code></td></tr>`).join('');
+        renderRegistry(devices);
+        renderFloorplan(devices);
       } catch (e) {
         statusEl.className = 'bad';
         statusEl.textContent = 'Bridge offline — run hiri-bridge serve — ' + e;
+        renderFloorplan([]);
       }
     }
     document.getElementById('reload').onclick = load;
