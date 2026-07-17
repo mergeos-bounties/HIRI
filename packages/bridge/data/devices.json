@@ -1681,5 +1681,23 @@
       "icon": "mdi:outdoor-lamp"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.barometric_pressure",
+    "name": "Barometric pressure",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-BARO",
+    "area": "outdoor",
+    "online": true,
+    "state": {
+      "state": "1013"
+    },
+    "attributes": {
+      "device_class": "atmospheric_pressure",
+      "unit_of_measurement": "hPa",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
