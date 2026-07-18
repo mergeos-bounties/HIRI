@@ -1789,5 +1789,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.nursery_co2",
+    "name": "Nursery CO2",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-CO2",
+    "area": "nursery",
+    "online": true,
+    "state": {
+      "state": "620"
+    },
+    "attributes": {
+      "device_class": "carbon_dioxide",
+      "unit_of_measurement": "ppm",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
