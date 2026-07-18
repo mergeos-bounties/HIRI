@@ -1771,5 +1771,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.laundry_humidity",
+    "name": "Laundry humidity",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-LAUNDRY-H",
+    "area": "laundry",
+    "online": true,
+    "state": {
+      "state": "55"
+    },
+    "attributes": {
+      "device_class": "humidity",
+      "unit_of_measurement": "%",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
