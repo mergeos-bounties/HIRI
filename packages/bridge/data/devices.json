@@ -1807,5 +1807,22 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.basement_radon",
+    "name": "Basement radon",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-RADON",
+    "area": "basement",
+    "online": true,
+    "state": {
+      "state": "1.2"
+    },
+    "attributes": {
+      "unit_of_measurement": "pCi/L",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
