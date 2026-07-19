@@ -1842,5 +1842,23 @@
       "state_class": "measurement"
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "sensor.pantry_humidity",
+    "name": "Pantry humidity",
+    "domain": "sensor",
+    "manufacturer": "HIRI",
+    "model": "HIRI-HUM",
+    "area": "pantry",
+    "online": true,
+    "state": {
+      "state": "48"
+    },
+    "attributes": {
+      "unit_of_measurement": "%",
+      "device_class": "humidity",
+      "state_class": "measurement"
+    },
+    "adapter": "mqtt"
   }
 ]
