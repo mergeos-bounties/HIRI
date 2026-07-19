@@ -2,13 +2,14 @@
  * HIRI Firmware — lightweight MQTT client for ESP32/ESP8266.
  * Publishes Home Assistant MQTT discovery + state for:
  *  - switch (relay)
- *  - sensor (fake soil moisture / temperature)
+ *  - sensor (DHT22 temperature + soil ADC, with simulated fallback)
  *
  * Configure WiFi/MQTT in include/hiri_config.h or build_flags.
  */
 #include <Arduino.h>
-#include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <DHT.h>
+#include <PubSubClient.h>
 #include "hiri_config.h"
 
 #if defined(ESP8266)
@@ -19,6 +20,9 @@
 
 WiFiClient wifiClient;
 PubSubClient mqtt(wifiClient);
+#if HIRI_DHT_ENABLED
+DHT dht(HIRI_DHT_PIN, HIRI_DHT_TYPE);
+#endif
 
 const char *STATUS_TOPIC = "hiri/status";
 bool relayOn = false;
@@ -92,6 +96,66 @@ void publishDiscovery() {
   }
 }
 
+float simulatedSoil(unsigned long now) {
+  return 35.0f + (now % 2000) / 100.0f;
+}
+
+float simulatedTemp(unsigned long now) {
+  return 24.0f + (now % 1000) / 200.0f;
+}
+
+float clampPercent(float value) {
+  if (value < 0.0f) return 0.0f;
+  if (value > 100.0f) return 100.0f;
+  return value;
+}
+
+bool readSoil(float &value) {
+#if HIRI_SOIL_ADC_ENABLED
+  if (HIRI_SOIL_ADC_DRY == HIRI_SOIL_ADC_WET) {
+    return false;
+  }
+  int raw = analogRead(HIRI_SOIL_ADC_PIN);
+  value = clampPercent(((float)HIRI_SOIL_ADC_DRY - raw) * 100.0f /
+                       ((float)HIRI_SOIL_ADC_DRY - HIRI_SOIL_ADC_WET));
+  return true;
+#else
+  (void)value;
+  return false;
+#endif
+}
+
+bool readTemperature(float &value) {
+#if HIRI_DHT_ENABLED
+  float reading = dht.readTemperature();
+  if (!isnan(reading)) {
+    value = reading;
+    return true;
+  }
+#else
+  (void)value;
+#endif
+  return false;
+}
+
+void publishTelemetry(unsigned long now) {
+  float soil;
+  if (!readSoil(soil)) {
+    soil = simulatedSoil(now);
+  }
+
+  float temp;
+  if (!readTemperature(temp)) {
+    temp = simulatedTemp(now);
+  }
+
+  char buf[16];
+  dtostrf(soil, 0, 1, buf);
+  mqtt.publish(stateTopicSoil().c_str(), buf, true);
+  dtostrf(temp, 0, 1, buf);
+  mqtt.publish(stateTopicTemp().c_str(), buf, true);
+}
+
 void onMqttMessage(char *topic, byte *payload, unsigned int length) {
   String t(topic);
   String msg;
@@ -115,6 +179,9 @@ void ensureMqtt() {
 
 void setup() {
   Serial.begin(115200);
+#if HIRI_DHT_ENABLED
+  dht.begin();
+#endif
   WiFi.mode(WIFI_STA);
   WiFi.begin(HIRI_WIFI_SSID, HIRI_WIFI_PASS);
   uint8_t tries = 0;
@@ -136,14 +203,7 @@ void loop() {
   if (now - lastTelemetry > 10000) {
     lastTelemetry = now;
     if (mqtt.connected()) {
-      // Simulated sensors — replace with real ADC/I2C in bounties
-      float soil = 35.0f + (now % 2000) / 100.0f;
-      float temp = 24.0f + (now % 1000) / 200.0f;
-      char buf[16];
-      dtostrf(soil, 0, 1, buf);
-      mqtt.publish(stateTopicSoil().c_str(), buf, true);
-      dtostrf(temp, 0, 1, buf);
-      mqtt.publish(stateTopicTemp().c_str(), buf, true);
+      publishTelemetry(now);
     }
   }
 }
