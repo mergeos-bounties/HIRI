@@ -10,8 +10,21 @@
 #ifndef HIRI_MQTT_HOST
 #define HIRI_MQTT_HOST "homeassistant.local"
 #endif
+#ifndef HIRI_MQTT_TLS
+#define HIRI_MQTT_TLS 0
+#endif
+#ifndef HIRI_MQTT_TLS_INSECURE
+#define HIRI_MQTT_TLS_INSECURE 0
+#endif
+#ifndef HIRI_MQTT_CA_CERT
+#define HIRI_MQTT_CA_CERT ""
+#endif
 #ifndef HIRI_MQTT_PORT
+#if HIRI_MQTT_TLS
+#define HIRI_MQTT_PORT 8883
+#else
 #define HIRI_MQTT_PORT 1883
+#endif
 #endif
 #ifndef HIRI_MQTT_USER
 #define HIRI_MQTT_USER ""
