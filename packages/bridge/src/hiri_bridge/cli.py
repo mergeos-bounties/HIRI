@@ -286,7 +286,7 @@ def adapters_list() -> None:
 
 @adapters_app.command("import")
 def adapters_import(
-    name: str = typer.Argument(..., help="z2m | tuya | ha_rest"),
+    name: str = typer.Argument(..., help="z2m | tuya | ha_rest | ha_ws"),
 ) -> None:
     reg = _registry()
     try:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from hiri_bridge import __version__
 from hiri_bridge.adapters import import_from_adapter, list_adapters
+from hiri_bridge.adapters.ha_ws import sync_event_to_registry
 from hiri_bridge.adapters.mqtt_pub import MqttDiscoveryPublisher
 from hiri_bridge.auth import OptionalTokenMiddleware, api_token
 from hiri_bridge.devices.registry import DeviceRegistry
@@ -103,6 +104,19 @@ def adapters_import(name: str) -> dict:
     for d in devices:
         _reg.upsert(d)
     return {"imported": len(devices), "adapter": name, "stats": _reg.stats()}
+
+
+@app.post("/adapters/ha_ws/events")
+def ha_ws_event(body: dict) -> dict:
+    device = sync_event_to_registry(_reg, body)
+    if not device:
+        raise HTTPException(400, "unsupported Home Assistant state_changed event")
+    return {
+        "synced": 1,
+        "adapter": "ha_ws",
+        "device": device.model_dump(),
+        "stats": _reg.stats(),
+    }
 
 
 @app.post("/mqtt/publish")
