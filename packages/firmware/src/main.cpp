@@ -13,11 +13,25 @@
 
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
+#if HIRI_MQTT_TLS
+#include <WiFiClientSecureBearSSL.h>
+#endif
 #else
 #include <WiFi.h>
+#if HIRI_MQTT_TLS
+#include <WiFiClientSecure.h>
+#endif
 #endif
 
+#if HIRI_MQTT_TLS
+#if defined(ESP8266)
+BearSSL::WiFiClientSecure wifiClient;
+#else
+WiFiClientSecure wifiClient;
+#endif
+#else
 WiFiClient wifiClient;
+#endif
 PubSubClient mqtt(wifiClient);
 
 const char *STATUS_TOPIC = "hiri/status";
@@ -35,6 +49,19 @@ String stateTopicSoil() {
 }
 String stateTopicTemp() {
   return String("hiri/state/") + HIRI_DEVICE_ID + "/temp";
+}
+
+void configureMqttTransport() {
+#if HIRI_MQTT_TLS
+#if HIRI_MQTT_TLS_INSECURE
+  wifiClient.setInsecure();
+#elif defined(ESP8266)
+  static BearSSL::X509List caCert(HIRI_MQTT_CA_CERT);
+  wifiClient.setTrustAnchors(&caCert);
+#else
+  wifiClient.setCACert(HIRI_MQTT_CA_CERT);
+#endif
+#endif
 }
 
 void publishDiscovery() {
@@ -122,6 +149,7 @@ void setup() {
     delay(250);
     tries++;
   }
+  configureMqttTransport();
   mqtt.setServer(HIRI_MQTT_HOST, HIRI_MQTT_PORT);
   mqtt.setCallback(onMqttMessage);
   mqtt.setBufferSize(1024);
