@@ -22,3 +22,12 @@
 #ifndef HIRI_DEVICE_ID
 #define HIRI_DEVICE_ID "hiri_node_01"
 #endif
+#ifndef HIRI_FIRMWARE_VERSION
+#define HIRI_FIRMWARE_VERSION "dev"
+#endif
+
+// Optional shared secret for MQTT OTA commands. Leave empty only on trusted dev
+// brokers; production deployments should override this via build flags.
+#ifndef HIRI_OTA_TOKEN
+#define HIRI_OTA_TOKEN ""
+#endif
