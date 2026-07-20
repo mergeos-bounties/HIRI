@@ -12,7 +12,7 @@ from hiri_bridge.devices.registry import DeviceRegistry
 def test_list_adapters():
     rows = list_adapters()
     names = {r["name"] for r in rows}
-    assert {"local", "mqtt", "ha_rest", "z2m", "tuya"}.issubset(names)
+    assert {"local", "mqtt", "ha_rest", "ha_ws", "z2m", "tuya"}.issubset(names)
 
 
 def test_z2m_fixture_import():
@@ -36,6 +36,10 @@ def test_import_into_registry(tmp_path: Path):
     for d in import_from_adapter("z2m"):
         reg.upsert(d)
     assert reg.stats()["total"] > before
+
+
+def test_ha_ws_import_is_offline_safe():
+    assert import_from_adapter("ha_ws") == []
 
 
 def test_mqtt_dry_run(tmp_path: Path):
