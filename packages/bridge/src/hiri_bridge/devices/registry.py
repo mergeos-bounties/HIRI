@@ -167,6 +167,19 @@ def default_seed_devices() -> list[Device]:
             attributes={"preset_modes": ["low", "medium", "high", "breeze"]},
         ),
         Device(
+            id="humidifier.bedroom",
+            name="Bedroom humidifier",
+            domain="humidifier",
+            model="HIRI-HUMID",
+            area="bedroom",
+            state={"state": "off", "current_humidity": 45, "humidity": 50, "mode": "auto"},
+            attributes={
+                "min_humidity": 30,
+                "max_humidity": 80,
+                "modes": ["auto", "sleep", "eco"],
+            },
+        ),
+        Device(
             id="media_player.tv_living",
             name="Living TV",
             domain="media_player",
