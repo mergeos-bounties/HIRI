@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HIRI Admin Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .dashboard { display: flex; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .log-tail { background: #333; color: #0f0; padding: 10px; height: 300px; overflow-y: scroll; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>HIRI Admin Dashboard</h1>
+    <div class="dashboard">
+        <div class="card">
+            <h2>System Status</h2>
+            <p>Bridge: <strong>Online</strong></p>
+            <p>Connected Devices: <strong>14</strong></p>
+            <p>Uptime: <strong>4 days, 2 hours</strong></p>
+        </div>
+        <div class="card">
+            <h2>Visual Log Tail</h2>
+            <div class="log-tail" id="logs">
+                [INFO] System initialized.<br>
+                [INFO] MQTT connected.<br>
+                [WARN] Device 'front_door' latency high.<br>
+                [INFO] Received state update from 'living_room_light'.<br>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Simulate live logs
+        setInterval(() => {
+            const logs = document.getElementById('logs');
+            logs.innerHTML += '[INFO] Ping received from device at ' + new Date().toLocaleTimeString() + '<br>';
+            logs.scrollTop = logs.scrollHeight;
+        }, 3000);
+    </script>
+</body>
+</html>
