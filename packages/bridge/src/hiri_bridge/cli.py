@@ -109,23 +109,37 @@ def devices_list(
 
 
 @devices_app.command("stats")
-def devices_stats() -> None:
-    """Domain / area / adapter counts from the registry."""
+def devices_stats(
+    domain: str | None = typer.Option(None, "--domain", "-d", help="Filter by device domain"),
+    area: str | None = typer.Option(None, "--area", "-a", help="Filter by room/area"),
+    adapter: str | None = typer.Option(None, "--adapter", help="Filter by adapter"),
+) -> None:
+    """Domain / area / adapter counts from the registry (offline, no tokens)."""
     reg = _registry()
     by_domain: dict[str, int] = {}
     by_area: dict[str, int] = {}
     by_adapter: dict[str, int] = {}
     online = 0
+    total = 0
     for d in reg.list():
+        if domain and d.domain != domain:
+            continue
+        if area:
+            dev_area = getattr(d, "area", None) or (d.attributes or {}).get("area") or ""
+            if str(dev_area).lower() != area.strip().lower():
+                continue
+        if adapter and d.adapter != adapter:
+            continue
+        total += 1
         by_domain[d.domain] = by_domain.get(d.domain, 0) + 1
-        area = getattr(d, "area", None) or "unknown"
-        by_area[str(area)] = by_area.get(str(area), 0) + 1
+        dev_area = getattr(d, "area", None) or "unknown"
+        by_area[str(dev_area)] = by_area.get(str(dev_area), 0) + 1
         by_adapter[d.adapter] = by_adapter.get(d.adapter, 0) + 1
         if getattr(d, "online", True):
             online += 1
     console.print_json(
         data={
-            "total": reg.stats().get("total"),
+            "total": total,
             "online": online,
             "by_domain": by_domain,
             "by_area": by_area,
