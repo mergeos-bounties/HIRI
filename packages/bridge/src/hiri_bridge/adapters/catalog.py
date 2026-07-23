@@ -7,6 +7,7 @@ from typing import Any
 from hiri_bridge.adapters.ha_rest import HomeAssistantRestAdapter
 from hiri_bridge.adapters.ha_ws import HomeAssistantWebSocketAdapter
 from hiri_bridge.adapters.local import LocalAdapter
+from hiri_bridge.adapters.matter import MatterAdapter
 from hiri_bridge.adapters.mqtt_pub import MqttDiscoveryPublisher
 from hiri_bridge.adapters.tuya import TuyaAdapter
 from hiri_bridge.adapters.z2m import Zigbee2MqttAdapter
@@ -60,8 +61,8 @@ def list_adapters() -> list[dict[str, Any]]:
             "name": "matter",
             "kind": "scaffold",
             "live": False,
-            "description": "Matter bridge (scaffold only)",
-            "status": "planned",
+            "description": "Matter node snapshot mapping (fixture offline)",
+            "status": MatterAdapter().status(),
         },
     ]
     return rows
@@ -81,4 +82,6 @@ def import_from_adapter(name: str) -> list:
         return HomeAssistantWebSocketAdapter().list_remote()
     if key == "mqtt":
         return []  # mqtt is publish path, not import
+    if key == "matter":
+        return MatterAdapter().list_remote()
     raise ValueError(f"unknown adapter: {name}")

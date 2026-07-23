@@ -13,7 +13,7 @@
 - [ ] Live MQTT client (paho) optional  
 - [ ] HA WebSocket event stream  
 - [ ] OTA for firmware  
-- [ ] Matter bridge adapter stub  
+- [x] Matter bridge adapter stub
 
 ## v0.3
 
