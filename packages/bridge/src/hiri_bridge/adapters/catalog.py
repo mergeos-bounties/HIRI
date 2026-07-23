@@ -44,10 +44,10 @@ def list_adapters() -> list[dict[str, Any]]:
         },
         {
             "name": "z2m",
-            "kind": "mqtt_http",
+            "kind": "websocket",
             "live": True,
-            "description": "Zigbee2MQTT device import (fixture offline)",
-            "status": "fixture ready",
+            "description": "Zigbee2MQTT WebSocket device import (fixture offline)",
+            "status": Zigbee2MqttAdapter().status(),
         },
         {
             "name": "tuya",
