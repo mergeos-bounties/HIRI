@@ -4,10 +4,31 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any
+from collections.abc import Callable
+from typing import Any, Protocol
 
 from hiri_bridge.devices.types import Device
 from hiri_bridge.ha.discovery import discovery_payload, discovery_topic, state_topic
+
+
+class MqttPublishReceipt(Protocol):
+    def wait_for_publish(self, timeout: float | None = None) -> Any: ...
+
+
+class MqttClient(Protocol):
+    def username_pw_set(self, username: str, password: str) -> Any: ...
+
+    def connect(self, host: str, port: int, keepalive: int) -> Any: ...
+
+    def loop_start(self) -> Any: ...
+
+    def publish(
+        self, topic: str, payload: str, qos: int = 0, retain: bool = False
+    ) -> MqttPublishReceipt: ...
+
+    def disconnect(self) -> Any: ...
+
+    def loop_stop(self) -> Any: ...
 
 
 class MqttDiscoveryPublisher:
@@ -19,13 +40,21 @@ class MqttDiscoveryPublisher:
         port: int | None = None,
         username: str | None = None,
         password: str | None = None,
+        client_factory: Callable[[], MqttClient] | None = None,
+        publish_timeout: float = 5.0,
+        qos: int = 1,
     ):
         self.host = host or os.environ.get("HIRI_MQTT_HOST", "127.0.0.1")
         self.port = int(port or os.environ.get("HIRI_MQTT_PORT", "1883"))
         self.username = username or os.environ.get("HIRI_MQTT_USER") or ""
         self.password = password or os.environ.get("HIRI_MQTT_PASSWORD") or ""
+        self.client_factory = client_factory
+        self.publish_timeout = publish_timeout
+        self.qos = qos
 
     def status(self) -> str:
+        if self.client_factory is not None:
+            return f"client ready → {self.host}:{self.port}"
         try:
             import paho.mqtt.client  # noqa: F401
 
@@ -48,6 +77,7 @@ class MqttDiscoveryPublisher:
                     "topic": discovery_topic(d),
                     "payload": discovery_payload(d),
                     "retain": True,
+                    "qos": self.qos,
                     "kind": "discovery",
                 }
             )
@@ -56,6 +86,7 @@ class MqttDiscoveryPublisher:
                     "topic": state_topic(d),
                     "payload": d.state if d.state else {"state": "unknown"},
                     "retain": True,
+                    "qos": self.qos,
                     "kind": "state",
                 }
             )
@@ -64,6 +95,7 @@ class MqttDiscoveryPublisher:
                 "topic": "hiri/status",
                 "payload": "online",
                 "retain": True,
+                "qos": self.qos,
                 "kind": "availability",
             }
         )
@@ -81,28 +113,63 @@ class MqttDiscoveryPublisher:
                 "truncated": len(messages) > 40,
             }
         try:
-            import paho.mqtt.client as mqtt
-        except ImportError as exc:
+            client = self._new_client()
+        except RuntimeError as exc:
             return {
                 "ok": False,
-                "error": 'paho-mqtt not installed; pip install -e ".[mqtt]" or use dry_run',
+                "error": str(exc),
                 "detail": str(exc),
             }
 
-        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        if self.username:
-            client.username_pw_set(self.username, self.password)
-        client.connect(self.host, self.port, 30)
         published = 0
-        for m in messages:
-            payload = m["payload"]
-            body = payload if isinstance(payload, str) else json.dumps(payload)
-            client.publish(m["topic"], body, retain=bool(m.get("retain")))
-            published += 1
-        client.disconnect()
-        return {
-            "ok": True,
-            "dry_run": False,
-            "broker": f"{self.host}:{self.port}",
-            "published": published,
-        }
+        connected = False
+        loop_started = False
+        try:
+            if self.username:
+                client.username_pw_set(self.username, self.password)
+            client.connect(self.host, self.port, 30)
+            connected = True
+            client.loop_start()
+            loop_started = True
+            for message in messages:
+                payload = message["payload"]
+                body = payload if isinstance(payload, str) else json.dumps(payload)
+                receipt = client.publish(
+                    message["topic"],
+                    body,
+                    qos=int(message.get("qos", self.qos)),
+                    retain=bool(message.get("retain")),
+                )
+                receipt.wait_for_publish(timeout=self.publish_timeout)
+                published += 1
+            return {
+                "ok": True,
+                "dry_run": False,
+                "broker": f"{self.host}:{self.port}",
+                "published": published,
+                "qos": self.qos,
+            }
+        except Exception as exc:
+            return {
+                "ok": False,
+                "dry_run": False,
+                "broker": f"{self.host}:{self.port}",
+                "published": published,
+                "error": f"MQTT publish failed: {exc}",
+            }
+        finally:
+            if connected:
+                client.disconnect()
+            if loop_started:
+                client.loop_stop()
+
+    def _new_client(self) -> MqttClient:
+        if self.client_factory is not None:
+            return self.client_factory()
+        try:
+            import paho.mqtt.client as mqtt
+        except ImportError as exc:
+            raise RuntimeError(
+                'paho-mqtt not installed; pip install -e ".[mqtt]" or use dry_run'
+            ) from exc
+        return mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
