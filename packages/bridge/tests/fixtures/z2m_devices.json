@@ -1,0 +1,71 @@
+[
+  {
+    "ieee_address": "0x00124b0024c00001",
+    "type": "Coordinator",
+    "network_address": 0,
+    "supported": false,
+    "friendly_name": "Coordinator"
+  },
+  {
+    "ieee_address": "0x00124b0024c00002",
+    "type": "Router",
+    "network_address": 1111,
+    "supported": true,
+    "friendly_name": "living/main bulb",
+    "interview_completed": true,
+    "disabled": false,
+    "power_source": "Mains (single phase)",
+    "definition": {
+      "model": "LED1623G12",
+      "vendor": "IKEA",
+      "description": "TRADFRI bulb"
+    },
+    "exposes": [
+      {
+        "type": "light",
+        "features": [
+          {"type": "binary", "name": "state", "property": "state"},
+          {"type": "numeric", "name": "brightness", "property": "brightness"}
+        ]
+      }
+    ]
+  },
+  {
+    "ieee_address": "0x00158d0000000003",
+    "type": "EndDevice",
+    "network_address": 2222,
+    "supported": true,
+    "friendly_name": "hall/front contact",
+    "interview_completed": true,
+    "disabled": false,
+    "power_source": "Battery",
+    "definition": {
+      "model": "MCCGQ11LM",
+      "vendor": "Xiaomi",
+      "description": "Door sensor"
+    },
+    "exposes": [
+      {"type": "binary", "name": "contact", "property": "contact"},
+      {"type": "numeric", "name": "battery", "property": "battery"}
+    ]
+  },
+  {
+    "ieee_address": "0x00158d0000000004",
+    "type": "EndDevice",
+    "network_address": 3333,
+    "supported": true,
+    "friendly_name": "bedroom/temperature",
+    "interview_completed": false,
+    "disabled": false,
+    "power_source": "Battery",
+    "definition": {
+      "model": "WSDCGQ11LM",
+      "vendor": "Xiaomi",
+      "description": "Temperature and humidity sensor"
+    },
+    "exposes": [
+      {"type": "numeric", "name": "temperature", "property": "temperature"},
+      {"type": "numeric", "name": "humidity", "property": "humidity"}
+    ]
+  }
+]
