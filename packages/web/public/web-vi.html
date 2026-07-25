@@ -3,66 +3,284 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="HIRI Web — Bảng điều khiển thiết bị thông minh" />
   <title>HIRI Web</title>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
-    header { padding: 1rem 1.25rem; border-bottom: 1px solid #1e293b; }
-    main { padding: 1rem 1.25rem; max-width: 1100px; margin: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th, td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid #1e293b; }
-    th { color: #94a3b8; font-weight: 600; }
-    input { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 0.35rem 0.5rem; border-radius: 6px; }
-    button { background: #0284c7; color: #fff; border: 0; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; }
-    .ok { color: #4ade80; } .bad { color: #f87171; }
-    pre { background: #1e293b; padding: 0.75rem; border-radius: 8px; overflow: auto; }
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #f1f5f9;
+      --surface: #fff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #0369a1;
+      --primary-light: #e0f2fe;
+      --accent: #0284c7;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .app-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow); }
+    .app-header-inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+    .app-header h1 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    .app-header .subtitle { font-size: 0.8rem; color: var(--muted); margin-left: auto; }
+    .controls { max-width: 1100px; margin: 0 auto; padding: 0.75rem 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .controls label { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.35rem; }
+    .controls input, .controls select { font-size: 0.85rem; padding: 0.4rem 0.55rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s; }
+    .controls input:focus, .controls select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+    .btn { font-size: 0.8rem; padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: #0284d7; }
+    .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+    .btn-icon { width: 1.8rem; height: 1.8rem; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+    #status { max-width: 1100px; margin: 0 auto; padding: 0 1rem 0.5rem; font-size: 0.82rem; }
+    .status-ok { color: #16a34a; }
+    .status-err { color: #b91c1c; }
+    .status-loading { color: var(--muted); }
+    .content { max-width: 1100px; margin: 0 auto; padding: 0 1rem 2rem; }
+    .stats-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .stat-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.7rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem; }
+    .stat-chip strong { font-weight: 600; }
+    .area-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; box-shadow: var(--shadow); }
+    .area-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 0.85rem; cursor: pointer; user-select: none; transition: background 0.15s; border-bottom: 1px solid transparent; }
+    .area-header:hover { background: #f8fafc; }
+    .area-header.expanded { border-bottom-color: var(--border); }
+    .area-toggle { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; width: 1rem; text-align: center; flex-shrink: 0; }
+    .area-toggle.open { transform: rotate(90deg); }
+    .area-name { font-weight: 600; font-size: 0.92rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .area-count { font-size: 0.72rem; color: var(--muted); background: var(--bg); padding: 0.1rem 0.45rem; border-radius: 999px; white-space: nowrap; }
+    .area-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+    .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; padding: 0.75rem; }
+    .device-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 0.75rem; transition: box-shadow 0.15s; }
+    .device-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .device-card-header { display: flex; align-items: flex-start; gap: 0.45rem; margin-bottom: 0.35rem; }
+    .device-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; width: 1.6rem; text-align: center; }
+    .device-info { flex: 1; min-width: 0; }
+    .device-name { font-weight: 600; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .device-name .hl { background: #fef9c3; color: #854d0e; border-radius: 2px; padding: 0 1px; }
+    .device-meta { font-size: 0.72rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .device-state { font-size: 0.72rem; padding: 0.15rem 0.35rem; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.35rem; font-family: ui-monospace, monospace; }
+    .device-state.on { border-color: var(--success); color: #16a34a; }
+    .device-state.off { border-color: var(--border); }
+    .device-controls { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .device-controls .btn { font-size: 0.7rem; padding: 0.2rem 0.45rem; }
+    .toggle-wrap { display: flex; align-items: center; gap: 0.35rem; }
+    .toggle { position: relative; width: 2.2rem; height: 1.2rem; background: #cbd5e1; border-radius: 999px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; border: 0; padding: 0; }
+    .toggle.on { background: var(--success); }
+    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: calc(1.2rem - 4px); height: calc(1.2rem - 4px); background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .toggle.on::after { transform: translateX(1rem); }
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .empty-state p { margin: 0.25rem 0; font-size: 0.9rem; }
+    @media (max-width: 640px) {
+      .app-header .subtitle { display: none; }
+      .controls { padding: 0.5rem 0.75rem; }
+      .controls label { width: 100%; }
+      .controls input, .controls select { flex: 1; }
+      .device-grid { grid-template-columns: 1fr; }
+      .stats-row { gap: 0.35rem; }
+      .stat-chip { font-size: 0.75rem; }
+      .content { padding: 0 0.75rem 1.5rem; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <strong>HIRI Web</strong>
-    <span style="color:#94a3b8;margin-left:0.75rem">điều khiển thiết bị thông minh</span>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <h1 id="title">🏠 HIRI Web</h1>
+      <span class="subtitle" id="subtitle">Bảng điều khiển thông minh</span>
+    </div>
   </header>
-  <main>
-    <p>
-      API <input id="base" value="http://127.0.0.1:8780" size="28" />
-      <button id="reload">Làm mới</button>
-      <button id="seed">Tạo dữ liệu mẫu</button>
-    </p>
-    <p id="status" class="bad">Chưa kết nối</p>
-    <table>
-      <thead><tr><th>ID</th><th>Lĩnh vực</th><th>Tên</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </main>
+
+  <div class="controls">
+    <label>API <input id="base" value="http://127.0.0.1:8780" size="24" /></label>
+    <label>🔍 <input id="q" placeholder="Tìm tên, ID hoặc loại…" size="18" /></label>
+    <label>📂 <select id="area"><option value="">Tất cả phòng</option></select></label>
+    <label>🏷️ <select id="domain"><option value="">Tất cả loại</option></select></label>
+    <label><select id="statusFilter"><option value="">Tất cả trạng thái</option><option value="online">Trực tuyến</option><option value="offline">Ngoại tuyến</option></select></label>
+    <button class="btn btn-primary" id="reload" type="button">⟳ Làm mới</button>
+    <button class="btn" id="lang" type="button">🌐 EN / VI</button>
+    <button class="btn" id="toggleAll" type="button">📖 Mở rộng</button>
+  </div>
+
+  <div id="status" class="status-loading">⏳ Đang tải…</div>
+
+  <div class="content">
+    <div class="stats-row" id="statsRow"></div>
+    <div id="rooms"></div>
+  </div>
+
   <script>
-    const statusEl = document.getElementById('status');
-    const tbody = document.getElementById('tbody');
-    function base() { return document.getElementById('base').value.replace(/\/$/, ''); }
-    async function load() {
-      try {
-        const stats = await fetch(base() + '/stats').then(r => r.json());
-        const devices = await fetch(base() + '/devices').then(r => r.json());
-        statusEl.className = 'ok';
-        statusEl.textContent = `OK · ${stats.total} thiết bị · lĩnh vực: ${Object.keys(stats.by_domain||{}).length}`;
-        tbody.innerHTML = devices.map(d => `<tr>
-          <td>${d.id}</td><td>${d.domain}</td><td>${d.name}</td>
-          <td><code>${JSON.stringify(d.state)}</code></td>
-          <td><button onclick="toggle('${d.id}')">Bật/Tắt</button></td></tr>`).join('');
-      } catch (e) {
-        statusEl.className = 'bad';
-        statusEl.textContent = 'Bridge ngoại tuyến — chạy hiri-bridge serve — ' + e;
+    const i18n = {
+      en: {
+        title: '🏠 HIRI Web', subtitle: 'Smart home dashboard',
+        loading: '⏳ Loading…', allAreas: 'All areas', allTypes: 'All types',
+        allStatus: 'All status', online: 'Online', offline: 'Offline',
+        refresh: '⟳ Refresh', expandAll: 'Expand all', collapseAll: 'Collapse all',
+        noDevices: 'No devices match your filters', noDevicesHint: 'Try adjusting the search or filters',
+        bridgeOffline: 'Bridge offline — run hiri-bridge serve',
+        searchPlaceholder: 'Search name, ID, or type…',
+        offlineTag: 'Offline', toggleOn: 'On', toggleOff: 'Off',
+      },
+      vi: {
+        title: '🏠 HIRI Web', subtitle: 'Bảng điều khiển thông minh',
+        loading: '⏳ Đang tải…', allAreas: 'Tất cả phòng', allTypes: 'Tất cả loại',
+        allStatus: 'Tất cả trạng thái', online: 'Trực tuyến', offline: 'Ngoại tuyến',
+        refresh: '⟳ Làm mới', expandAll: 'Mở rộng', collapseAll: 'Thu gọn',
+        noDevices: 'Không có thiết bị phù hợp', noDevicesHint: 'Thử điều chỉnh tìm kiếm hoặc bộ lọc',
+        bridgeOffline: 'Bridge ngoại tuyến — chạy hiri-bridge serve',
+        searchPlaceholder: 'Tìm tên, ID hoặc loại…',
+        offlineTag: 'Ngoại tuyến', toggleOn: 'Bật', toggleOff: 'Tắt',
+      }
+    };
+
+    let lang = 'vi';
+    let allDevices = [];
+    let allAreas = [];
+    let allDomains = [];
+    let expandedAreas = new Set();
+    let autoRefreshInterval = null;
+
+    function t(k) { return (i18n[lang] || i18n.en)[k] || k; }
+    function applyLang() {
+      document.getElementById('title').textContent = t('title');
+      document.getElementById('subtitle').textContent = t('subtitle');
+      document.getElementById('reload').textContent = t('refresh');
+      document.getElementById('q').placeholder = t('searchPlaceholder');
+      const area = document.getElementById('area');
+      if (area.options[0]) area.options[0].textContent = t('allAreas');
+      const domain = document.getElementById('domain');
+      if (domain.options[0]) domain.options[0].textContent = t('allTypes');
+      const statusF = document.getElementById('statusFilter');
+      if (statusF.options[0]) statusF.options[0].textContent = t('allStatus');
+      if (statusF.options[1]) statusF.options[1].textContent = t('online');
+      if (statusF.options[2]) statusF.options[2].textContent = t('offline');
+    }
+
+    const TYPE_ICONS = {
+      light: '💡', switch: '🔌', fan: '🌀', sensor: '📡',
+      climate: '🌡️', cover: '🪟', lock: '🔒', camera: '📹',
+      binary_sensor: '🔔', siren: '🔊', smoke: '🔥', motion: '🚶',
+      temperature: '🌡️', humidity: '💧', pressure: '⏲️',
+      contact: '🚪', presence: '👤',
+    };
+    function getDeviceIcon(domain) { return TYPE_ICONS[domain] || TYPE_ICONS[domain?.split('_')[0]] || '📦'; }
+
+    function render() {
+      const area = document.getElementById('area').value;
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const domain = document.getElementById('domain').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      let list = allDevices.slice();
+      if (area) list = list.filter(d => d.area === area);
+      if (domain) list = list.filter(d => d.domain === domain);
+      if (statusFilter === 'online') list = list.filter(d => d.online !== false);
+      if (statusFilter === 'offline') list = list.filter(d => d.online === false || d.online === undefined);
+      if (q) {
+        const ql = q.toLowerCase();
+        list = list.filter(d => (d.name||'').toLowerCase().includes(ql) || (d.id||'').toLowerCase().includes(ql) || (d.domain||'').toLowerCase().includes(ql) || (d.adapter||'').toLowerCase().includes(ql));
+      }
+      const byArea = {};
+      for (const d of list) { const a = d.area || 'home'; (byArea[a] = byArea[a] || []).push(d); }
+      const totalDisplay = list.length;
+      const totalOnline = list.filter(d => d.online !== false).length;
+      document.getElementById('statsRow').innerHTML = `
+        <div class="stat-chip">📊 <strong>${totalDisplay}</strong> thiết bị</div>
+        <div class="stat-chip">🟢 <strong>${totalOnline}</strong> trực tuyến</div>
+        ${totalDisplay - totalOnline > 0 ? `<div class="stat-chip">🔴 <strong>${totalDisplay - totalOnline}</strong> ngoại tuyến</div>` : ''}
+        <div class="stat-chip">🏠 <strong>${Object.keys(byArea).length}</strong> phòng</div>
+        <div class="stat-chip">🏷️ <strong>${allDomains.length}</strong> loại</div>`;
+      const root = document.getElementById('rooms');
+      root.innerHTML = '';
+      const areas = Object.keys(byArea).sort();
+      if (!areas.length) { root.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>${t('noDevices')}</p><p style="font-size:0.8rem">${t('noDevicesHint')}</p></div>`; return; }
+      for (const a of areas) {
+        const devices = byArea[a];
+        const isExpanded = expandedAreas.has(a) || expandedAreas.size === 0;
+        const section = document.createElement('div');
+        section.className = 'area-section';
+        const header = document.createElement('div');
+        header.className = 'area-header' + (isExpanded ? ' expanded' : '');
+        header.setAttribute('role', 'button'); header.setAttribute('tabindex', '0'); header.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        header.innerHTML = `<span class="area-toggle ${isExpanded ? 'open' : ''}">▶</span><span class="area-name">${escapeHtml(a.replace(/_/g, ' '))}</span><span class="area-count">${devices.length} · ${devices.filter(d => d.online !== false).length} trực tuyến</span><span class="area-actions"><button class="btn btn-sm btn-icon area-toggle-on" title="Bật tất cả">🟢</button><button class="btn btn-sm btn-icon area-toggle-off" title="Tắt tất cả">🔴</button></span>`;
+        header.addEventListener('click', (e) => { if (e.target.closest('.area-actions')) return; toggleArea(a); });
+        header.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleArea(a); } });
+        header.querySelector('.area-toggle-on').addEventListener('click', (e) => { e.stopPropagation(); const toggleable = devices.filter(d => ['light','switch','fan','siren'].includes(d.domain)); Promise.all(toggleable.map(d => cmd(d.id, 'turn_on'))); });
+        header.querySelector('.area-toggle-off').addEventListener('click', (e) => { e.stopPropagation(); const toggleable = devices.filter(d => ['light','switch','fan','siren'].includes(d.domain)); Promise.all(toggleable.map(d => cmd(d.id, 'turn_off'))); });
+        const grid = document.createElement('div');
+        grid.className = 'device-grid';
+        grid.style.display = isExpanded ? 'grid' : 'none';
+        for (const d of devices) {
+          const card = document.createElement('div');
+          card.className = 'device-card';
+          const isOnline = d.online !== false;
+          const stateStr = d.state ? (typeof d.state === 'object' ? (d.state.state || JSON.stringify(d.state)) : String(d.state)) : '—';
+          const isOn = stateStr === 'on' || stateStr === 'ON' || (typeof d.state === 'object' && d.state.state === 'on');
+          const isToggleable = ['light','switch','fan','siren'].includes(d.domain);
+          let nameHtml = escapeHtml(d.name || d.id || 'Unnamed');
+          if (q) { const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'); nameHtml = nameHtml.replace(re, '<span class="hl">$1</span>'); }
+          card.innerHTML = `<div class="device-card-header"><span class="device-icon">${getDeviceIcon(d.domain)}</span><div class="device-info"><div class="device-name">${nameHtml}</div><div class="device-meta">${escapeHtml(d.id)} · ${d.domain}${d.adapter ? ' · ' + escapeHtml(d.adapter) : ''}</div></div></div><div class="device-state ${isOn ? 'on' : 'off'}" title="State: ${escapeHtml(stateStr)}">${isOnline ? (isOn ? '🟢 Bật' : '⚪ Tắt') : '🔴 ' + t('offlineTag')}${!isOnline ? '' : d.domain === 'sensor' || d.domain === 'temperature' ? ' · ' + escapeHtml(stateStr) : ''}</div>${isToggleable ? `<div class="device-controls toggle-wrap"><button class="toggle ${isOn ? 'on' : ''}" data-id="${escapeHtml(d.id)}" title="${isOn ? 'Tắt' : 'Bật'}" aria-label="${isOn ? 'Tắt' : 'Bật'}"></button><button class="btn btn-sm" data-cmd-on="${escapeHtml(d.id)}">${t('toggleOn')}</button><button class="btn btn-sm" data-cmd-off="${escapeHtml(d.id)}">${t('toggleOff')}</button></div>` : ''}`;
+          const toggleBtn = card.querySelector('.toggle');
+          if (toggleBtn) toggleBtn.addEventListener('click', () => cmd(toggleBtn.dataset.id, isOn ? 'turn_off' : 'turn_on'));
+          const onBtn = card.querySelector('[data-cmd-on]'); const offBtn = card.querySelector('[data-cmd-off]');
+          if (onBtn) onBtn.addEventListener('click', () => cmd(onBtn.dataset.cmdOn, 'turn_on'));
+          if (offBtn) offBtn.addEventListener('click', () => cmd(offBtn.dataset.cmdOff, 'turn_off'));
+          grid.appendChild(card);
+        }
+        section.append(header, grid);
+        root.appendChild(section);
       }
     }
-    document.getElementById('reload').onclick = load;
-    document.getElementById('seed').onclick = async () => {
-      await fetch(base() + '/devices/seed', { method: 'POST' });
-      load();
-    };
-    async function toggle(id) {
-      await fetch(base() + `/devices/${id}/toggle`, { method: 'POST' });
-      load();
+    function toggleArea(name) { if (expandedAreas.has(name)) expandedAreas.delete(name); else expandedAreas.add(name); render(); updateToggleAllLabel(); }
+    function expandAllAreas() { expandedAreas = new Set(allDevices.map(d => d.area || 'home')); render(); updateToggleAllLabel(); }
+    function collapseAllAreas() { expandedAreas = new Set(); render(); updateToggleAllLabel(); }
+    function updateToggleAllLabel() { const btn = document.getElementById('toggleAll'); const allExpanded = allDevices.length > 0 && expandedAreas.size >= new Set(allDevices.map(d => d.area || 'home')).size; btn.textContent = allExpanded ? '📖 ' + t('collapseAll') : '📖 ' + t('expandAll'); if (allExpanded) btn.onclick = collapseAllAreas; else btn.onclick = expandAllAreas; }
+    function escapeHtml(s) { if (s == null) return ''; const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
+
+    async function load() {
+      const base = document.getElementById('base').value.replace(/\/$/, '');
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = t('loading'); statusEl.className = 'status-loading';
+      try {
+        const [statsResult, devices, areasResult] = await Promise.all([
+          fetch(base + '/stats').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
+          fetch(base + '/devices').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
+          fetch(base + '/areas').then(r => r.ok ? r.json() : { areas: {} }).catch(() => ({ areas: {} })),
+        ]);
+        allDevices = devices;
+        allAreas = Object.keys(areasResult.areas || {}).sort();
+        allDomains = [...new Set(devices.map(d => d.domain).filter(Boolean))].sort();
+        statusEl.textContent = `✅ Đã kết nối · ${statsResult.total} thiết bị · ${statsResult.online} trực tuyến`; statusEl.className = 'status-ok';
+        const sel = document.getElementById('area'); const cur = sel.value; sel.innerHTML = '';
+        const opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = t('allAreas'); sel.appendChild(opt0);
+        if (allAreas.length) { allAreas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = `${a.replace(/_/g, ' ')} (${areasResult.areas[a]})`; sel.appendChild(o); }); }
+        else { const s = new Set(devices.map(d => d.area || 'home')); [...s].sort().forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a.replace(/_/g, ' '); sel.appendChild(o); }); }
+        if (cur) sel.value = cur;
+        const domainSel = document.getElementById('domain'); const curDomain = domainSel.value; domainSel.innerHTML = '';
+        const optD0 = document.createElement('option'); optD0.value = ''; optD0.textContent = t('allTypes'); domainSel.appendChild(optD0);
+        allDomains.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = `${getDeviceIcon(d)} ${d}`; domainSel.appendChild(o); });
+        if (curDomain) domainSel.value = curDomain;
+        if (expandedAreas.size === 0) { const areaSet = new Set(devices.map(d => d.area || 'home')); areaSet.forEach(a => expandedAreas.add(a)); }
+        updateToggleAllLabel(); render();
+      } catch (e) { statusEl.textContent = '❌ ' + t('bridgeOffline') + ' — ' + e.message; statusEl.className = 'status-err'; document.getElementById('statsRow').innerHTML = ''; }
     }
-    load();
+    async function cmd(id, action) {
+      const base = document.getElementById('base').value.replace(/\/$/, '');
+      try { await fetch(base + '/devices/' + encodeURIComponent(id) + '/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) }); load(); }
+      catch (e) { document.getElementById('status').textContent = '❌ Lệnh thất bại: ' + e.message; document.getElementById('status').className = 'status-err'; }
+    }
+    function startAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); autoRefreshInterval = setInterval(load, 15000); }
+    document.getElementById('reload').onclick = load;
+    document.getElementById('area').onchange = render;
+    document.getElementById('domain').onchange = render;
+    document.getElementById('q').oninput = render;
+    document.getElementById('statusFilter').onchange = render;
+    document.getElementById('lang').onclick = () => { lang = lang === 'en' ? 'vi' : 'en'; applyLang(); render(); updateToggleAllLabel(); };
+    document.getElementById('toggleAll').onclick = expandAllAreas;
+    applyLang(); load(); startAutoRefresh();
   </script>
 </body>
 </html>
