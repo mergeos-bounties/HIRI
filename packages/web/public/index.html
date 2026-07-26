@@ -5,36 +5,163 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HIRI Web</title>
   <style>
-    :root { font-family: system-ui, sans-serif; color: #0f172a; background: #f1f5f9; }
-    body { margin: 0; padding: 1rem; max-width: 1040px; margin-inline: auto; }
-    h1 { color: #0369a1; margin-bottom: 0.25rem; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; }
-    .card { background: #fff; border-radius: 10px; padding: 0.9rem; border: 1px solid #e2e8f0; }
-    .card h3 { margin: 0 0 0.35rem; font-size: 1rem; }
-    .muted { color: #64748b; font-size: 0.85rem; }
-    button, select, input { margin: 0.15rem 0.25rem 0.15rem 0; }
-    button { cursor: pointer; }
-    #status { margin: 0.5rem 0 1rem; }
-    .err { color: #b91c1c; }
-    .area-title { margin: 1.25rem 0 0.5rem; font-size: 1.05rem; color: #0c4a6e; border-bottom: 1px solid #cbd5e1; padding-bottom: 0.25rem; }
+    :root {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #0f172a;
+      background: #f1f5f9;
+      --accent: #0369a1;
+      --accent-light: #e0f2fe;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      --success: #16a34a;
+      --danger: #b91c1c;
+      --card-bg: #fff;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; padding: 1rem; max-width: 1100px; margin-inline: auto; }
+    h1 { color: var(--accent); margin: 0 0 0.15rem; font-size: 1.35rem; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      align-items: center; margin: 0.75rem 0;
+      background: var(--card-bg); padding: 0.65rem 0.85rem;
+      border-radius: 10px; border: 1px solid var(--border);
+    }
+    .toolbar label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; color: var(--muted); }
+    .toolbar input, .toolbar select {
+      padding: 0.35rem 0.5rem; border: 1px solid var(--border);
+      border-radius: 6px; font-size: 0.85rem; background: #f8fafc;
+    }
+    .toolbar input:focus, .toolbar select:focus {
+      outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light);
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.4rem 0.75rem; border: 1px solid var(--border);
+      border-radius: 6px; background: var(--card-bg); cursor: pointer;
+      font-size: 0.85rem; transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .btn:active { background: #e2e8f0; }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: #0284c7; }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+    .search-wrap { position: relative; }
+    .search-wrap .clear-btn {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      border: none; background: transparent; cursor: pointer;
+      color: var(--muted); font-size: 1rem; line-height: 1; padding: 2px 4px;
+      display: none;
+    }
+    .search-wrap .clear-btn.visible { display: block; }
+    #status {
+      margin: 0.5rem 0 0.75rem; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .err { color: var(--danger); }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      padding: 0.15rem 0.45rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 500;
+    }
+    .badge-online { background: #dcfce7; color: #166534; }
+    .badge-offline { background: #fee2e2; color: #991b1b; }
+    .badge-count { background: var(--accent-light); color: var(--accent); }
+    .result-meta { font-size: 0.8rem; color: var(--muted); margin-left: auto; }
+    .area-section { margin-bottom: 1.25rem; }
+    .area-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin: 0 0 0.5rem; padding: 0.4rem 0.65rem;
+      background: var(--card-bg); border-radius: 8px;
+      border: 1px solid var(--border); cursor: pointer;
+      user-select: none; transition: background 0.15s;
+    }
+    .area-header:hover { background: #f1f5f9; }
+    .area-header h2 {
+      margin: 0; font-size: 1rem; color: #0c4a6e; flex: 1;
+    }
+    .area-header .collapse-icon {
+      font-size: 0.75rem; color: var(--muted); transition: transform 0.2s;
+    }
+    .area-header.collapsed .collapse-icon { transform: rotate(-90deg); }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.75rem; transition: grid-template-columns 0.2s;
+    }
+    .area-section.collapsed .grid { display: none; }
+    .card {
+      background: var(--card-bg); border-radius: 10px; padding: 0.85rem;
+      border: 1px solid var(--border); transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-color: #cbd5e1; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+    .card h3 { margin: 0 0 0.2rem; font-size: 0.95rem; font-weight: 600; }
+    .card .domain-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .card-meta { font-size: 0.8rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.4rem; }
+    .card-meta span { display: inline-block; }
+    .card-actions { display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap; }
+    .card-actions .btn { font-size: 0.78rem; }
+    .state-preview {
+      margin-top: 0.4rem; padding: 0.35rem 0.5rem;
+      background: #f8fafc; border-radius: 6px; border: 1px solid #f1f5f9;
+      font-size: 0.75rem; color: var(--muted); font-family: ui-monospace, monospace;
+      max-height: 3em; overflow: hidden; position: relative;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .state-preview.expanded { max-height: none; }
+    .state-toggle {
+      font-size: 0.7rem; color: var(--accent); cursor: pointer;
+      border: none; background: none; padding: 0.2rem 0; text-decoration: underline;
+    }
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: var(--muted);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .empty-state p { margin: 0.25rem 0; }
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-card { height: 100px; }
+    .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem; }
+    .skeleton-grid .skeleton-card { height: 100px; }
+    @media (max-width: 640px) {
+      body { padding: 0.65rem; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar label { flex-wrap: wrap; }
+      .toolbar input, .toolbar select { flex: 1; min-width: 0; }
+      .grid { grid-template-columns: 1fr; }
+      .result-meta { margin-left: 0; }
+      #status { flex-direction: column; align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
   <h1 id="title">HIRI Web</h1>
-  <p class="muted" id="subtitle">User dashboard · HIRI-bridge API</p>
+  <p class="muted" id="subtitle" style="margin:0 0 0.25rem;font-size:0.85rem;">User dashboard · HIRI-bridge API</p>
   <div class="toolbar">
-    <label>API <input id="base" value="http://127.0.0.1:8780" size="28" /></label>
+    <label>API <input id="base" value="http://127.0.0.1:8780" size="24" /></label>
     <label>Area
       <select id="area"><option value="">All rooms</option></select>
     </label>
-    <label>Search <input id="q" placeholder="name / id" size="16" /></label>
-    <button id="reload" type="button">Reload</button>
-    <button id="lang" type="button">VI / EN</button>
+    <label class="search-wrap">
+      Search
+      <input id="q" placeholder="name / id / domain" size="14" />
+      <button class="clear-btn" id="clearBtn" type="button" title="Clear search">&times;</button>
+    </label>
+    <button class="btn btn-primary" id="reload" type="button">↻ Reload</button>
+    <button class="btn" id="lang" type="button">🌐 VI / EN</button>
   </div>
   <div id="status" class="muted">Not loaded</div>
-  <div id="rooms"></div>
+  <div id="rooms" aria-live="polite"></div>
   <script>
+    const DOMAIN_ICONS = {
+      light: '💡', switch: '🔌', fan: '🌀', siren: '🔊',
+      sensor: '📡', climate: '🌡️', cover: '🪟', lock: '🔒',
+      camera: '📷', motion: '🚶', contact: '🚪',
+    };
+
     const i18n = {
       en: {
         title: 'HIRI Web',
@@ -43,6 +170,22 @@
         reload: 'Reload',
         allRooms: 'All rooms',
         search: 'Search',
+        noDevices: 'No devices match your filters',
+        noDevicesHint: 'Try changing the area or search term',
+        bridgeOffline: 'Bridge offline? Start: hiri-bridge serve',
+        loading: 'Loading…',
+        online: 'online',
+        offline: 'offline',
+        devices: 'Devices',
+        clear: 'Clear',
+        showState: 'Show state',
+        hideState: 'Hide state',
+        toggle: 'Toggle',
+        collapse: 'Collapse',
+        expand: 'Expand',
+        searchResults: 'results',
+        resultCount: 'Showing',
+        of: 'of',
       },
       vi: {
         title: 'HIRI Web',
@@ -51,76 +194,232 @@
         reload: 'Tải lại',
         allRooms: 'Tất cả phòng',
         search: 'Tìm',
+        noDevices: 'Không có thiết bị phù hợp',
+        noDevicesHint: 'Thử thay đổi khu vực hoặc từ khóa',
+        bridgeOffline: 'Bridge ngoại tuyến? Chạy: hiri-bridge serve',
+        loading: 'Đang tải…',
+        online: 'trực tuyến',
+        offline: 'ngoại tuyến',
+        devices: 'Thiết bị',
+        clear: 'Xóa',
+        showState: 'Xem trạng thái',
+        hideState: 'Ẩn trạng thái',
+        toggle: 'Thu gọn',
+        collapse: 'Thu gọn',
+        expand: 'Mở rộng',
+        searchResults: 'kết quả',
+        resultCount: 'Hiển thị',
+        of: 'trên',
       },
     };
+
     let lang = 'en';
     let allDevices = [];
+    let deviceOnline = new Set();
 
     function t(k) { return (i18n[lang] || i18n.en)[k] || k; }
 
     function applyLang() {
       document.getElementById('title').textContent = t('title');
       document.getElementById('subtitle').textContent = t('subtitle');
-      document.getElementById('reload').textContent = t('reload');
+      document.getElementById('reload').innerHTML = '↻ ' + t('reload');
       const area = document.getElementById('area');
       if (area.options[0]) area.options[0].textContent = t('allRooms');
+    }
+
+    function getDomainIcon(domain) {
+      return DOMAIN_ICONS[domain] || '🔹';
+    }
+
+    function getOnlineStatus(id) {
+      return deviceOnline.has(id) ? 'online' : 'offline';
     }
 
     function render() {
       const area = document.getElementById('area').value;
       const q = document.getElementById('q').value.trim().toLowerCase();
+      const clearBtn = document.getElementById('clearBtn');
+      clearBtn.classList.toggle('visible', q.length > 0);
+
       let list = allDevices.slice();
       if (area) list = list.filter(d => d.area === area);
       if (q) list = list.filter(d =>
         (d.name || '').toLowerCase().includes(q) ||
         (d.id || '').toLowerCase().includes(q) ||
-        (d.domain || '').toLowerCase().includes(q)
+        (d.domain || '').toLowerCase().includes(q) ||
+        (d.adapter || '').toLowerCase().includes(q)
       );
+
       const byArea = {};
       for (const d of list) {
         const a = d.area || 'home';
         (byArea[a] = byArea[a] || []).push(d);
       }
+
       const root = document.getElementById('rooms');
       root.innerHTML = '';
       const areas = Object.keys(byArea).sort();
+      const totalFiltered = list.length;
+
+      // Update result count in status
+      const statusEl = document.getElementById('status');
+      const totalAll = allDevices.length;
+      const onlineCount = deviceOnline.size;
+      if (totalAll > 0) {
+        let statusText = `${t('devices')}: ${totalAll} · ${t('online')}: ${onlineCount} · ${t('offline')}: ${totalAll - onlineCount}`;
+        if (q || area) {
+          statusText += ` · ${t('resultCount')} ${totalFiltered}/${totalAll} ${t('searchResults')}`;
+        }
+        statusEl.textContent = statusText;
+        statusEl.className = 'muted';
+      }
+
       if (!areas.length) {
-        root.innerHTML = '<p class="muted">No devices</p>';
+        root.innerHTML = `<div class="empty-state">
+          <div class="icon">🔍</div>
+          <p>${t('noDevices')}</p>
+          <p class="muted">${t('noDevicesHint')}</p>
+        </div>`;
         return;
       }
+
       for (const a of areas) {
-        const h = document.createElement('h2');
-        h.className = 'area-title';
-        h.textContent = a + ' (' + byArea[a].length + ')';
-        root.appendChild(h);
+        const section = document.createElement('div');
+        section.className = 'area-section';
+
+        const header = document.createElement('div');
+        header.className = 'area-header';
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+        header.setAttribute('aria-expanded', 'true');
+
+        const icon = document.createElement('span');
+        icon.className = 'collapse-icon';
+        icon.textContent = '▼';
+        header.appendChild(icon);
+
+        const h2 = document.createElement('h2');
+        h2.textContent = a.charAt(0).toUpperCase() + a.slice(1);
+        header.appendChild(h2);
+
+        const countBadge = document.createElement('span');
+        countBadge.className = 'badge badge-count';
+        countBadge.textContent = byArea[a].length;
+        header.appendChild(countBadge);
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'btn btn-sm';
+        toggleBtn.textContent = t('collapse');
+        toggleBtn.onclick = (e) => {
+          e.stopPropagation();
+          header.click();
+        };
+        header.appendChild(toggleBtn);
+
+        header.onclick = () => {
+          section.classList.toggle('collapsed');
+          header.classList.toggle('collapsed');
+          const collapsed = section.classList.contains('collapsed');
+          header.setAttribute('aria-expanded', String(!collapsed));
+          toggleBtn.textContent = collapsed ? t('expand') : t('collapse');
+        };
+        header.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        };
+
+        section.appendChild(header);
+
         const grid = document.createElement('div');
         grid.className = 'grid';
+
         for (const d of byArea[a]) {
           const card = document.createElement('div');
           card.className = 'card';
-          card.innerHTML = `<h3>${d.name}</h3>
-            <div class="muted">${d.id} · ${d.domain} · ${d.adapter || 'local'}</div>
-            <pre class="muted">${JSON.stringify(d.state)}</pre>`;
-          if (['light','switch','fan','siren'].includes(d.domain)) {
-            const on = document.createElement('button');
-            on.textContent = 'On';
-            on.onclick = () => cmd(d.id, 'turn_on');
-            const off = document.createElement('button');
-            off.textContent = 'Off';
-            off.onclick = () => cmd(d.id, 'turn_off');
-            card.appendChild(on); card.appendChild(off);
+
+          const cardHeader = document.createElement('div');
+          cardHeader.className = 'card-header';
+
+          const nameDiv = document.createElement('div');
+          nameDiv.style.flex = '1';
+          const h3 = document.createElement('h3');
+          h3.textContent = d.name || d.id;
+          nameDiv.appendChild(h3);
+
+          const meta = document.createElement('div');
+          meta.className = 'card-meta';
+          const status = getOnlineStatus(d.id);
+          const statusBadge = document.createElement('span');
+          statusBadge.className = 'badge ' + (status === 'online' ? 'badge-online' : 'badge-offline');
+          statusBadge.textContent = status === 'online' ? '● Online' : '○ Offline';
+          meta.appendChild(statusBadge);
+          meta.appendChild(document.createTextNode(' ' + d.id + ' · ' + (d.domain || '?')));
+          if (d.adapter && d.adapter !== 'local') {
+            meta.appendChild(document.createTextNode(' · ' + d.adapter));
           }
+          nameDiv.appendChild(meta);
+          cardHeader.appendChild(nameDiv);
+
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'domain-icon';
+          iconSpan.textContent = getDomainIcon(d.domain);
+          cardHeader.appendChild(iconSpan);
+
+          card.appendChild(cardHeader);
+
+          // State preview
+          if (d.state && Object.keys(d.state).length > 0) {
+            const statePreview = document.createElement('div');
+            statePreview.className = 'state-preview';
+            statePreview.textContent = JSON.stringify(d.state, null, 1);
+            card.appendChild(statePreview);
+          }
+
+          // Actions
+          const actions = document.createElement('div');
+          actions.className = 'card-actions';
+          if (['light','switch','fan','siren'].includes(d.domain)) {
+            const onBtn = document.createElement('button');
+            onBtn.className = 'btn btn-sm';
+            onBtn.textContent = '🟢 On';
+            onBtn.onclick = () => cmd(d.id, 'turn_on');
+            const offBtn = document.createElement('button');
+            offBtn.className = 'btn btn-sm';
+            offBtn.textContent = '🔴 Off';
+            offBtn.onclick = () => cmd(d.id, 'turn_off');
+            actions.appendChild(onBtn);
+            actions.appendChild(offBtn);
+
+            // Toggle button
+            const toggleAct = document.createElement('button');
+            toggleAct.className = 'btn btn-sm';
+            toggleAct.textContent = '🔄 Toggle';
+            toggleAct.onclick = () => cmd(d.id, 'toggle');
+            actions.appendChild(toggleAct);
+          }
+          card.appendChild(actions);
+
           grid.appendChild(card);
         }
-        root.appendChild(grid);
+
+        section.appendChild(grid);
+        root.appendChild(section);
       }
+    }
+
+    function showSkeleton() {
+      const root = document.getElementById('rooms');
+      root.innerHTML = '<div class="skeleton-grid">' +
+        Array(6).fill('<div class="skeleton skeleton-card"></div>').join('') +
+      '</div>';
     }
 
     async function load() {
       const base = document.getElementById('base').value.replace(/\/$/, '');
       const statusEl = document.getElementById('status');
-      statusEl.textContent = 'Loading…';
+      statusEl.textContent = t('loading');
       statusEl.className = 'muted';
+      showSkeleton();
+
       try {
         const [stats, devices, areas] = await Promise.all([
           fetch(base + '/stats').then(r => r.json()),
@@ -128,7 +427,18 @@
           fetch(base + '/areas').then(r => r.json()).catch(() => ({ areas: {} })),
         ]);
         allDevices = devices;
-        statusEl.textContent = `Devices: ${stats.total} · online: ${stats.online}`;
+        deviceOnline = new Set((stats.online_devices || stats.online_ids || []));
+        // Also derive from stats if the API returns online count differently
+        if (stats.online && !deviceOnline.size) {
+          // Fallback: mark devices as online if they have state
+          devices.forEach(d => {
+            if (d.state && Object.keys(d.state).length > 0) {
+              deviceOnline.add(d.id);
+            }
+          });
+        }
+
+        // Populate area dropdown
         const sel = document.getElementById('area');
         const cur = sel.value;
         sel.innerHTML = '';
@@ -141,41 +451,58 @@
           const s = new Set(devices.map(d => d.area || 'home'));
           [...s].sort().forEach(a => {
             const o = document.createElement('option');
-            o.value = a; o.textContent = a;
+            o.value = a; o.textContent = a.charAt(0).toUpperCase() + a.slice(1);
             sel.appendChild(o);
           });
         } else {
           areaNames.forEach(a => {
             const o = document.createElement('option');
-            o.value = a; o.textContent = `${a} (${areas.areas[a]})`;
+            o.value = a; o.textContent = `${a.charAt(0).toUpperCase() + a.slice(1)} (${areas.areas[a]})`;
             sel.appendChild(o);
           });
         }
         if (cur) sel.value = cur;
+
         render();
       } catch (e) {
-        statusEl.textContent = 'Bridge offline? Start: hiri-bridge serve — ' + e;
+        statusEl.textContent = t('bridgeOffline') + ' — ' + e;
         statusEl.className = 'err';
+        document.getElementById('rooms').innerHTML = `<div class="empty-state">
+          <div class="icon">⚠️</div>
+          <p>${t('bridgeOffline')}</p>
+          <p class="muted">${e}</p>
+        </div>`;
       }
     }
 
     async function cmd(id, action) {
       const base = document.getElementById('base').value.replace(/\/$/, '');
-      await fetch(base + '/devices/' + encodeURIComponent(id) + '/command', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
+      try {
+        await fetch(base + '/devices/' + encodeURIComponent(id) + '/command', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action })
+        });
+      } catch (e) {
+        console.error('Command failed:', e);
+      }
       load();
     }
 
+    // Event handlers
     document.getElementById('reload').onclick = load;
     document.getElementById('area').onchange = render;
     document.getElementById('q').oninput = render;
+    document.getElementById('clearBtn').onclick = () => {
+      document.getElementById('q').value = '';
+      render();
+      document.getElementById('q').focus();
+    };
     document.getElementById('lang').onclick = () => {
       lang = lang === 'en' ? 'vi' : 'en';
       applyLang();
       render();
     };
+
     applyLang();
     load();
   </script>
