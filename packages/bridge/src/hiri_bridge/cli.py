@@ -39,6 +39,69 @@ def version_cmd() -> None:
     console.print(f"Domains: {', '.join(DOMAINS)}")
 
 
+@devices_app.command("filter")
+def devices_filter(
+    domain: str = typer.Argument(..., help="Home Assistant device domain (light, sensor, switch, ...)"),
+    sort_by: str = typer.Option("id", "--sort", "-s",
+                                 help="Sort key: id, name, domain, area, adapter"),
+    reverse: bool = typer.Option(False, "--reverse", "-r", help="Reverse sort order"),
+    limit: int = typer.Option(0, "--limit", "-n", min=0, help="Cap output rows (0 = all)"),
+    json_out: bool = typer.Option(False, "--json", "-j", help="Emit JSON instead of table"),
+) -> None:
+    """List devices filtered by domain, in a compact sortable view."""
+    reg = _registry()
+    domain = domain.strip().lower()
+    if domain not in DOMAINS:
+        console.print(f"[red]unknown domain '{domain}' — valid: {', '.join(DOMAINS)}[/red]")
+        raise typer.Exit(1)
+    filtered = [d for d in reg.list() if d.domain == domain]
+    sort_key = sort_by.strip().lower()
+    valid_keys = ("id", "name", "domain", "area", "adapter")
+    if sort_key not in valid_keys:
+        console.print(f"[red]unknown --sort '{sort_key}' — valid: {', '.join(valid_keys)}[/red]")
+        raise typer.Exit(1)
+    def _sort_key(dev) -> str:
+        if sort_key == "area":
+            return str(getattr(dev, "area", "") or "")
+        return str(getattr(dev, sort_key, "")).lower()
+    filtered = sorted(filtered, key=_sort_key, reverse=reverse)
+    if limit:
+        filtered = filtered[:limit]
+
+    if json_out:
+        out = [
+            {
+                "id": d.id,
+                "name": d.name,
+                "domain": d.domain,
+                "area": str(getattr(d, "area", "") or ""),
+                "adapter": d.adapter,
+                "online": getattr(d, "online", True),
+                "state": d.state,
+            }
+            for d in filtered
+        ]
+        console.print_json(data={"domain": domain, "count": len(out), "devices": out})
+        return
+
+    table = Table(title=f"Devices — domain={domain} ({len(filtered)} of {reg.stats()['total']})")
+    table.add_column("ID")
+    table.add_column("Name")
+    table.add_column("Area")
+    table.add_column("Adapter")
+    table.add_column("Online")
+    for d in filtered:
+        table.add_row(
+            d.id,
+            d.name,
+            str(getattr(d, "area", "") or ""),
+            d.adapter,
+            str(getattr(d, "online", True)),
+        )
+    console.print(table)
+    console.print(f"[dim]domain={domain} shown={len(filtered)}[/dim]")
+
+
 @app.command("demo")
 def demo_cmd() -> None:
     """Seed registry, adapters, MQTT dry-run, export HA discovery pack."""
