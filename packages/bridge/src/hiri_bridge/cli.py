@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
 
 import typer
@@ -12,7 +13,7 @@ from hiri_bridge.adapters import import_from_adapter, list_adapters
 from hiri_bridge.adapters.mqtt_pub import MqttDiscoveryPublisher
 from hiri_bridge.config import OUT_DIR
 from hiri_bridge.devices.registry import DeviceRegistry
-from hiri_bridge.devices.types import DOMAINS
+from hiri_bridge.devices.types import DOMAINS, Device
 from hiri_bridge.ha.discovery import export_discovery
 
 app = typer.Typer(help="HIRI-bridge — Home Assistant smart-home bridge.", no_args_is_help=True)
@@ -24,13 +25,36 @@ app.add_typer(devices_app, name="devices")
 app.add_typer(ha_app, name="ha")
 app.add_typer(adapters_app, name="adapters")
 app.add_typer(mqtt_app, name="mqtt")
-console = Console()
+console = Console(soft_wrap=True)
 
 
 def _registry() -> DeviceRegistry:
     reg = DeviceRegistry()
     reg.load_or_seed()
     return reg
+
+
+def filter_devices(
+    devices: Iterable[Device],
+    *,
+    domain: str | None = None,
+    area: str | None = None,
+    online_only: bool = False,
+) -> list[Device]:
+    """Filter registry devices by domain/area/online (no tokens exposed)."""
+    domain_norm = domain.strip().lower() if domain else None
+    area_norm = area.strip().lower() if area else None
+    out: list[Device] = []
+    for d in devices:
+        if domain_norm and d.domain.lower() != domain_norm:
+            continue
+        dev_area = getattr(d, "area", None) or (d.attributes or {}).get("area") or ""
+        if area_norm and str(dev_area).lower() != area_norm:
+            continue
+        if online_only and not getattr(d, "online", True):
+            continue
+        out.append(d)
+    return out
 
 
 @app.command("version")
@@ -74,38 +98,38 @@ def demo_cmd() -> None:
 
 @devices_app.command("list")
 def devices_list(
-    domain: str | None = typer.Option(None, "--domain", "-d"),
+    domain: str | None = typer.Option(
+        None,
+        "--domain",
+        "-d",
+        help="Filter by Home Assistant domain (e.g. sensor, light)",
+    ),
     area: str | None = typer.Option(None, "--area", "-a", help="Filter by room/area"),
     online_only: bool = typer.Option(False, "--online", help="Only online devices"),
 ) -> None:
+    """List devices from the registry, optionally filtered by domain."""
     reg = _registry()
-    table = Table(title="HIRI devices")
-    table.add_column("ID")
-    table.add_column("Domain")
-    table.add_column("Area")
-    table.add_column("Name")
-    table.add_column("State")
-    table.add_column("Adapter")
-    n = 0
-    for d in reg.list():
-        if domain and d.domain != domain:
-            continue
-        dev_area = getattr(d, "area", None) or (d.attributes or {}).get("area") or ""
-        if area and str(dev_area).lower() != area.strip().lower():
-            continue
-        if online_only and not getattr(d, "online", True):
-            continue
-        n += 1
+    rows = filter_devices(reg.list(), domain=domain, area=area, online_only=online_only)
+    title = "HIRI devices" if not domain else f"HIRI devices · domain={domain.strip().lower()}"
+    table = Table(title=title, expand=False)
+    table.add_column("ID", overflow="fold", no_wrap=True)
+    table.add_column("Domain", no_wrap=True)
+    table.add_column("Area", overflow="fold")
+    table.add_column("Name", overflow="fold")
+    table.add_column("State", overflow="fold")
+    table.add_column("Adapter", no_wrap=True)
+    for d in rows:
+        # State only (never attributes) so PINs/tokens are not printed.
         table.add_row(
             d.id,
             d.domain,
-            str(dev_area),
+            str(getattr(d, "area", "") or ""),
             d.name,
             json.dumps(d.state, ensure_ascii=False)[:40],
             d.adapter,
         )
     console.print(table)
-    console.print(f"[dim]shown={n}[/dim]")
+    console.print(f"[dim]shown={len(rows)}[/dim]")
 
 
 @devices_app.command("stats")
