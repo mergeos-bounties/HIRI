@@ -12,7 +12,7 @@ from hiri_bridge.adapters import import_from_adapter, list_adapters
 from hiri_bridge.adapters.mqtt_pub import MqttDiscoveryPublisher
 from hiri_bridge.config import OUT_DIR
 from hiri_bridge.devices.registry import DeviceRegistry
-from hiri_bridge.devices.types import DOMAINS
+from hiri_bridge.devices.types import DOMAINS, Device
 from hiri_bridge.ha.discovery import export_discovery
 
 app = typer.Typer(help="HIRI-bridge — Home Assistant smart-home bridge.", no_args_is_help=True)
@@ -25,6 +25,49 @@ app.add_typer(ha_app, name="ha")
 app.add_typer(adapters_app, name="adapters")
 app.add_typer(mqtt_app, name="mqtt")
 console = Console()
+
+# Keys stripped from registry JSON snapshots (tokens / secrets / PINs).
+_SECRET_KEYS = frozenset(
+    {
+        "token",
+        "access_token",
+        "refresh_token",
+        "password",
+        "secret",
+        "api_key",
+        "api_secret",
+        "authorization",
+        "private_key",
+        "client_secret",
+        "code",
+    }
+)
+
+
+def _sanitize_value(value: object) -> object:
+    if isinstance(value, dict):
+        return _sanitize_mapping(value)
+    if isinstance(value, list):
+        return [_sanitize_value(item) for item in value]
+    return value
+
+
+def _sanitize_mapping(data: dict) -> dict:
+    """Drop secret keys recursively; keep non-secret metadata (e.g. code_format)."""
+    out: dict = {}
+    for key, value in data.items():
+        if str(key).lower() in _SECRET_KEYS:
+            continue
+        out[key] = _sanitize_value(value)
+    return out
+
+
+def device_export_snapshot(device: Device) -> dict:
+    """Serialize a device for export without tokens/secrets."""
+    raw = device.model_dump()
+    raw["state"] = _sanitize_mapping(raw.get("state") or {})
+    raw["attributes"] = _sanitize_mapping(raw.get("attributes") or {})
+    return raw
 
 
 def _registry() -> DeviceRegistry:
@@ -219,7 +262,7 @@ def devices_export(
 ) -> None:
     """Export device registry as a JSON snapshot (no tokens/secrets)."""
     reg = _registry()
-    snapshot = [d.model_dump() for d in reg.list()]
+    snapshot = [device_export_snapshot(d) for d in reg.list()]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
     console.print(f"[green]Wrote[/green] {out} devices={len(snapshot)}")
