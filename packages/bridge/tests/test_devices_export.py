@@ -1,22 +1,20 @@
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
+from typer.testing import CliRunner
 
+from hiri_bridge.cli import app
 
+runner = CliRunner()
 
 def test_devices_export_writes_json(tmp_path: Path) -> None:
     """hiri-bridge devices export --out writes device registry snapshot."""
     out = tmp_path / "snapshot.json"
-    result = subprocess.run(
-        [sys.executable, "-m", "hiri_bridge.cli", "devices", "export", "--out", str(out)],
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
-    assert out.exists(), f"Expected {out} to exist. stderr={result.stderr}"
+    result = runner.invoke(app, ["devices", "export", "--out", str(out)])
+    
+    assert result.exit_code == 0, f"stdout={result.stdout} stderr={result.stdout}"
+    assert out.exists(), f"Expected {out} to exist. stderr={result.stdout}"
 
     data = json.loads(out.read_text(encoding="utf-8"))
     assert isinstance(data, list), f"Expected list, got {type(data)}"
@@ -34,25 +32,15 @@ def test_devices_export_writes_json(tmp_path: Path) -> None:
     # Verify output mentions device count
     assert "devices=" in result.stdout and str(len(data)) in result.stdout
 
-
 def test_devices_export_creates_parent_dirs(tmp_path: Path) -> None:
     """export --out creates parent directories if they don't exist."""
     out = tmp_path / "nested" / "deep" / "snapshot.json"
     assert not out.parent.exists()
-    result = subprocess.run(
-        [sys.executable, "-m", "hiri_bridge.cli", "devices", "export", "--out", str(out)],
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
+    result = runner.invoke(app, ["devices", "export", "--out", str(out)])
+    assert result.exit_code == 0, f"stdout={result.stdout}"
     assert out.exists()
-
 
 def test_devices_export_requires_out_option() -> None:
     """export command requires --out argument."""
-    result = subprocess.run(
-        [sys.executable, "-m", "hiri_bridge.cli", "devices", "export"],
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode != 0, "export without --out should fail"
+    result = runner.invoke(app, ["devices", "export"])
+    assert result.exit_code != 0, "export without --out should fail"
