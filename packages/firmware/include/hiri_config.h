@@ -59,3 +59,41 @@
 #define HIRI_SOIL_ADC_WET 1200
 #endif
 #endif
+
+// Low-power farm-node mode. Disabled by default so existing nodes keep the
+// current always-on behavior. Enable from build_flags for battery nodes.
+#ifndef HIRI_DEEP_SLEEP_ENABLED
+#define HIRI_DEEP_SLEEP_ENABLED 0
+#endif
+#ifndef HIRI_DEEP_SLEEP_SECONDS
+#define HIRI_DEEP_SLEEP_SECONDS 300
+#endif
+
+// Battery reporting is opt-in. Use a divider so the ADC input stays below the
+// board's safe voltage; HIRI_BATTERY_DIVIDER_RATIO is the full divider ratio.
+#ifndef HIRI_BATTERY_ENABLED
+#define HIRI_BATTERY_ENABLED 0
+#endif
+#ifndef HIRI_BATTERY_ADC_PIN
+#if defined(HIRI_BOARD_ESP8266) || defined(ESP8266)
+#define HIRI_BATTERY_ADC_PIN A0
+#else
+#define HIRI_BATTERY_ADC_PIN 35
+#endif
+#endif
+#ifndef HIRI_BATTERY_ADC_MAX
+#if defined(HIRI_BOARD_ESP8266) || defined(ESP8266)
+#define HIRI_BATTERY_ADC_MAX 1023
+#else
+#define HIRI_BATTERY_ADC_MAX 4095
+#endif
+#endif
+#ifndef HIRI_BATTERY_DIVIDER_RATIO
+#define HIRI_BATTERY_DIVIDER_RATIO 2.0f
+#endif
+#ifndef HIRI_BATTERY_MIN_VOLTAGE
+#define HIRI_BATTERY_MIN_VOLTAGE 3.0f
+#endif
+#ifndef HIRI_BATTERY_MAX_VOLTAGE
+#define HIRI_BATTERY_MAX_VOLTAGE 4.2f
+#endif
