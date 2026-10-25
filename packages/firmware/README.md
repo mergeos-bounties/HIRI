@@ -24,13 +24,33 @@ Sensor hardware is configurable in `include/hiri_config.h` or PlatformIO
 Defaults keep simulated telemetry enabled when hardware is disabled, missing, or
 returns an invalid reading.
 
+## TLS MQTT (optional)
+
+Production HA brokers should use TLS. Enable it with a build flag; the default
+broker port becomes `8883` when TLS is enabled:
+
+```bash
+PLATFORMIO_BUILD_FLAGS="-D HIRI_MQTT_TLS=1" pio run -e esp32dev
+```
+
+Or add `-D HIRI_MQTT_TLS=1` to `build_flags` in `platformio.ini`.
+
+By default TLS uses `setInsecure()` so a self-signed/unknown broker works
+without extra setup. For verified TLS set `HIRI_MQTT_TLS_INSECURE=0` and provide
+the broker CA PEM in `HIRI_MQTT_CA_CERT` (build flag or `hiri_config.h`).
+
+```bash
+PLATFORMIO_BUILD_FLAGS="-D HIRI_MQTT_TLS=1 -D HIRI_MQTT_TLS_INSECURE=0 -D HIRI_MQTT_CA_CERT='\"-----BEGIN CERTIFICATE-----...\"'" pio run -e esp32dev
+```
+
 ## Features
 
 - HA MQTT discovery for switch + soil + temperature
 - Optional DHT22 temperature and soil ADC moisture drivers
+- Optional TLS MQTT (`HIRI_MQTT_TLS=1`)
 - Compact telemetry loop (10s)
 - Command topic for relay
 
 ## Bounties
 
-Real sensors, OTA, deep sleep, TLS MQTT — see monorepo issues labeled `firmware`.
+Real sensors, OTA, deep sleep — see monorepo issues labeled `firmware`.

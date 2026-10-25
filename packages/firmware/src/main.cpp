@@ -1,209 +1,186 @@
-/**
- * HIRI Firmware — lightweight MQTT client for ESP32/ESP8266.
- * Publishes Home Assistant MQTT discovery + state for:
- *  - switch (relay)
- *  - sensor (DHT22 temperature + soil ADC, with simulated fallback)
- *
- * Configure WiFi/MQTT in include/hiri_config.h or build_flags.
- */
 #include <Arduino.h>
-#include <ArduinoJson.h>
-#include <DHT.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 #include "hiri_config.h"
 
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
-#else
-#include <WiFi.h>
+#if HIRI_MQTT_TLS
+#include <WiFiClientSecure.h>
 #endif
 
-WiFiClient wifiClient;
-PubSubClient mqtt(wifiClient);
 #if HIRI_DHT_ENABLED
+#include <DHT.h>
 DHT dht(HIRI_DHT_PIN, HIRI_DHT_TYPE);
 #endif
 
-const char *STATUS_TOPIC = "hiri/status";
+#if HIRI_MQTT_TLS
+WiFiClientSecure netClient;
+#else
+WiFiClient netClient;
+#endif
+
+PubSubClient mqtt(netClient);
+
 bool relayOn = false;
 unsigned long lastTelemetry = 0;
+unsigned long lastReconnect = 0;
 
-String stateTopicSwitch() {
-  return String("hiri/state/") + HIRI_DEVICE_ID + "/switch";
+void topic(char *out, size_t len, const char *suffix) {
+  snprintf(out, len, "hiri/%s/%s", HIRI_DEVICE_ID, suffix);
 }
-String cmdTopicSwitch() {
-  return String("hiri/cmd/") + HIRI_DEVICE_ID + "/switch";
+
+int readSoil() {
+#if HIRI_SOIL_ADC_ENABLED
+  int raw = analogRead(HIRI_SOIL_ADC_PIN);
+  int pct = map(raw, HIRI_SOIL_ADC_DRY, HIRI_SOIL_ADC_WET, 0, 100);
+  return constrain(pct, 0, 100);
+#else
+  return random(300, 700) / 10;
+#endif
 }
-String stateTopicSoil() {
-  return String("hiri/state/") + HIRI_DEVICE_ID + "/soil";
+
+float readTemperature() {
+#if HIRI_DHT_ENABLED
+  float t = dht.readTemperature();
+  if (!isnan(t)) return t;
+#endif
+  return 20.0 + (random(-20, 21) / 10.0);
 }
-String stateTopicTemp() {
-  return String("hiri/state/") + HIRI_DEVICE_ID + "/temp";
+
+void publishState() {
+  char t[96];
+  topic(t, sizeof(t), "switch/state");
+  mqtt.publish(t, relayOn ? "ON" : "OFF", true);
+}
+
+void publishTelemetry() {
+  char t[96];
+  char payload[32];
+
+  topic(t, sizeof(t), "soil");
+  snprintf(payload, sizeof(payload), "%d", readSoil());
+  mqtt.publish(t, payload, true);
+
+  topic(t, sizeof(t), "temperature");
+  snprintf(payload, sizeof(payload), "%.1f", readTemperature());
+  mqtt.publish(t, payload, true);
+
+  publishState();
+}
+
+void setRelay(bool on) {
+  relayOn = on;
+  digitalWrite(HIRI_RELAY_PIN, on ? HIGH : LOW);
+  publishState();
 }
 
 void publishDiscovery() {
-  // Switch
-  {
-    String topic = String("homeassistant/switch/hiri/") + HIRI_DEVICE_ID + "/config";
-    JsonDocument doc;
-    doc["name"] = String(HIRI_DEVICE_ID) + " Relay";
-    doc["unique_id"] = String(HIRI_DEVICE_ID) + "_switch";
-    doc["state_topic"] = stateTopicSwitch();
-    doc["command_topic"] = cmdTopicSwitch();
-    doc["payload_on"] = "ON";
-    doc["payload_off"] = "OFF";
-    doc["availability_topic"] = STATUS_TOPIC;
-    doc["payload_available"] = "online";
-    doc["payload_not_available"] = "offline";
-    JsonObject dev = doc["device"].to<JsonObject>();
-    dev["identifiers"][0] = HIRI_DEVICE_ID;
-    dev["manufacturer"] = "HIRI";
-    dev["model"] = "HIRI Firmware";
-    dev["name"] = HIRI_DEVICE_ID;
-    char buf[512];
-    size_t n = serializeJson(doc, buf, sizeof(buf));
-    mqtt.publish(topic.c_str(), (uint8_t *)buf, n, true);
-  }
-  // Soil sensor
-  {
-    String topic = String("homeassistant/sensor/hiri/") + HIRI_DEVICE_ID + "_soil/config";
-    JsonDocument doc;
-    doc["name"] = String(HIRI_DEVICE_ID) + " Soil";
-    doc["unique_id"] = String(HIRI_DEVICE_ID) + "_soil";
-    doc["state_topic"] = stateTopicSoil();
-    doc["unit_of_measurement"] = "%";
-    doc["device_class"] = "moisture";
-    doc["state_class"] = "measurement";
-    doc["availability_topic"] = STATUS_TOPIC;
-    char buf[512];
-    size_t n = serializeJson(doc, buf, sizeof(buf));
-    mqtt.publish(topic.c_str(), (uint8_t *)buf, n, true);
-  }
-  // Temp sensor
-  {
-    String topic = String("homeassistant/sensor/hiri/") + HIRI_DEVICE_ID + "_temp/config";
-    JsonDocument doc;
-    doc["name"] = String(HIRI_DEVICE_ID) + " Temp";
-    doc["unique_id"] = String(HIRI_DEVICE_ID) + "_temp";
-    doc["state_topic"] = stateTopicTemp();
-    doc["unit_of_measurement"] = "°C";
-    doc["device_class"] = "temperature";
-    doc["state_class"] = "measurement";
-    doc["availability_topic"] = STATUS_TOPIC;
-    char buf[512];
-    size_t n = serializeJson(doc, buf, sizeof(buf));
-    mqtt.publish(topic.c_str(), (uint8_t *)buf, n, true);
+  char t[96];
+  char payload[512];
+  char avail[96];
+  topic(avail, sizeof(avail), "availability");
+
+  snprintf(t, sizeof(t), "homeassistant/switch/%s/config", HIRI_DEVICE_ID);
+  snprintf(payload, sizeof(payload),
+           "{\"name\":\"HIRI Switch\",\"uniq_id\":\"%s_switch\",\"stat_t\":\"hiri/%s/switch/state\",\"cmd_t\":\"hiri/%s/switch/set\",\"avty_t\":\"%s\",\"pl_avail\":\"online\",\"pl_not_avail\":\"offline\"}",
+           HIRI_DEVICE_ID, HIRI_DEVICE_ID, HIRI_DEVICE_ID, avail);
+  mqtt.publish(t, payload, true);
+
+  snprintf(t, sizeof(t), "homeassistant/sensor/%s_soil/config", HIRI_DEVICE_ID);
+  snprintf(payload, sizeof(payload),
+           "{\"name\":\"HIRI Soil\",\"uniq_id\":\"%s_soil\",\"stat_t\":\"hiri/%s/soil\",\"unit_of_meas\":\"%%\",\"dev_cla\":\"moisture\",\"avty_t\":\"%s\",\"pl_avail\":\"online\",\"pl_not_avail\":\"offline\"}",
+           HIRI_DEVICE_ID, HIRI_DEVICE_ID, avail);
+  mqtt.publish(t, payload, true);
+
+  snprintf(t, sizeof(t), "homeassistant/sensor/%s_temperature/config", HIRI_DEVICE_ID);
+  snprintf(payload, sizeof(payload),
+           "{\"name\":\"HIRI Temperature\",\"uniq_id\":\"%s_temperature\",\"stat_t\":\"hiri/%s/temperature\",\"unit_of_meas\":\"\\u00b0C\",\"dev_cla\":\"temperature\",\"avty_t\":\"%s\",\"pl_avail\":\"online\",\"pl_not_avail\":\"offline\"}",
+           HIRI_DEVICE_ID, HIRI_DEVICE_ID, avail);
+  mqtt.publish(t, payload, true);
+}
+
+void callback(char *t, byte *payload, unsigned int length) {
+  char cmd[96];
+  topic(cmd, sizeof(cmd), "switch/set");
+  if (strcmp(t, cmd) != 0) return;
+
+  char msg[16];
+  unsigned int n = length < sizeof(msg) - 1 ? length : sizeof(msg) - 1;
+  memcpy(msg, payload, n);
+  msg[n] = '\0';
+
+  if (!strcmp(msg, "ON") || !strcmp(msg, "on") || !strcmp(msg, "1")) {
+    setRelay(true);
+  } else if (!strcmp(msg, "OFF") || !strcmp(msg, "off") || !strcmp(msg, "0")) {
+    setRelay(false);
   }
 }
 
-float simulatedSoil(unsigned long now) {
-  return 35.0f + (now % 2000) / 100.0f;
+void connectWifi() {
+  if (WiFi.status() == WL_CONNECTED) return;
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(HIRI_WIFI_SSID, HIRI_WIFI_PASS);
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) {
+    delay(250);
+  }
 }
 
-float simulatedTemp(unsigned long now) {
-  return 24.0f + (now % 1000) / 200.0f;
-}
-
-float clampPercent(float value) {
-  if (value < 0.0f) return 0.0f;
-  if (value > 100.0f) return 100.0f;
-  return value;
-}
-
-bool readSoil(float &value) {
-#if HIRI_SOIL_ADC_ENABLED
-  if (HIRI_SOIL_ADC_DRY == HIRI_SOIL_ADC_WET) {
+bool connectMqtt() {
+  char avail[96];
+  topic(avail, sizeof(avail), "availability");
+  if (!mqtt.connect(HIRI_DEVICE_ID, HIRI_MQTT_USER, HIRI_MQTT_PASS, avail, 0, true, "offline")) {
     return false;
   }
-  int raw = analogRead(HIRI_SOIL_ADC_PIN);
-  value = clampPercent(((float)HIRI_SOIL_ADC_DRY - raw) * 100.0f /
-                       ((float)HIRI_SOIL_ADC_DRY - HIRI_SOIL_ADC_WET));
+  mqtt.publish(avail, "online", true);
+  publishDiscovery();
+  publishState();
+  publishTelemetry();
   return true;
-#else
-  (void)value;
-  return false;
-#endif
-}
-
-bool readTemperature(float &value) {
-#if HIRI_DHT_ENABLED
-  float reading = dht.readTemperature();
-  if (!isnan(reading)) {
-    value = reading;
-    return true;
-  }
-#else
-  (void)value;
-#endif
-  return false;
-}
-
-void publishTelemetry(unsigned long now) {
-  float soil;
-  if (!readSoil(soil)) {
-    soil = simulatedSoil(now);
-  }
-
-  float temp;
-  if (!readTemperature(temp)) {
-    temp = simulatedTemp(now);
-  }
-
-  char buf[16];
-  dtostrf(soil, 0, 1, buf);
-  mqtt.publish(stateTopicSoil().c_str(), buf, true);
-  dtostrf(temp, 0, 1, buf);
-  mqtt.publish(stateTopicTemp().c_str(), buf, true);
-}
-
-void onMqttMessage(char *topic, byte *payload, unsigned int length) {
-  String t(topic);
-  String msg;
-  for (unsigned int i = 0; i < length; i++) msg += (char)payload[i];
-  if (t == cmdTopicSwitch()) {
-    relayOn = (msg == "ON" || msg == "on" || msg == "1");
-    mqtt.publish(stateTopicSwitch().c_str(), relayOn ? "ON" : "OFF", true);
-  }
-}
-
-void ensureMqtt() {
-  if (mqtt.connected()) return;
-  String clientId = String("hiri-") + HIRI_DEVICE_ID;
-  if (mqtt.connect(clientId.c_str(), HIRI_MQTT_USER, HIRI_MQTT_PASS, STATUS_TOPIC, 0, true, "offline")) {
-    mqtt.publish(STATUS_TOPIC, "online", true);
-    mqtt.subscribe(cmdTopicSwitch().c_str());
-    publishDiscovery();
-    mqtt.publish(stateTopicSwitch().c_str(), relayOn ? "ON" : "OFF", true);
-  }
 }
 
 void setup() {
   Serial.begin(115200);
+  pinMode(HIRI_RELAY_PIN, OUTPUT);
+  digitalWrite(HIRI_RELAY_PIN, LOW);
+
 #if HIRI_DHT_ENABLED
   dht.begin();
 #endif
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(HIRI_WIFI_SSID, HIRI_WIFI_PASS);
-  uint8_t tries = 0;
-  while (WiFi.status() != WL_CONNECTED && tries < 40) {
-    delay(250);
-    tries++;
-  }
+
+#if HIRI_MQTT_TLS
+#if HIRI_MQTT_TLS_INSECURE
+  netClient.setInsecure();
+#else
+  netClient.setCACert(HIRI_MQTT_CA_CERT);
+#endif
+#endif
+
   mqtt.setServer(HIRI_MQTT_HOST, HIRI_MQTT_PORT);
-  mqtt.setCallback(onMqttMessage);
+  mqtt.setCallback(callback);
+  mqtt.setKeepAlive(30);
+  mqtt.setSocketTimeout(10);
   mqtt.setBufferSize(1024);
+
+  connectWifi();
 }
 
 void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
-    ensureMqtt();
-    mqtt.loop();
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWifi();
   }
-  unsigned long now = millis();
-  if (now - lastTelemetry > 10000) {
-    lastTelemetry = now;
-    if (mqtt.connected()) {
-      publishTelemetry(now);
+
+  if (!mqtt.connected()) {
+    if (millis() - lastReconnect > 5000) {
+      lastReconnect = millis();
+      connectMqtt();
+    }
+  } else {
+    mqtt.loop();
+    if (millis() - lastTelemetry > 10000) {
+      lastTelemetry = millis();
+      publishTelemetry();
     }
   }
+
+  delay(10);
 }
